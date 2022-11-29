@@ -3,7 +3,7 @@ import { closestPointsSegmentToSegment, sphereIntersectTriangle } from './MathUt
 import { SeparatingAxisBounds } from './SeparatingAxisBounds';
 
 const DIST_EPSILON = 1e-15;
-function isNearZero(value)
+function isNearZero(value: number)
 {
 
 	return Math.abs(value) < DIST_EPSILON;
@@ -487,7 +487,7 @@ ExtendedTriangle.prototype.distanceToTriangle = (function ()
 
 	const point = new Vector3();
 	const point2 = new Vector3();
-	const cornerFields = ['a', 'b', 'c'];
+	const cornerFields: ('a' | 'b' | 'c')[] = ['a', 'b', 'c'];
 	const line1 = new Line3();
 	const line2 = new Line3();
 

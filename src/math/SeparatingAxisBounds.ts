@@ -54,7 +54,7 @@ export class SeparatingAxisBounds
 
 	}
 
-	isSeparated(other)
+	isSeparated(other: SeparatingAxisBounds)
 	{
 
 		return this.min > other.max || other.min > this.max;

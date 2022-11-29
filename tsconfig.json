@@ -5,7 +5,7 @@
 		"strict": true,
 		"noUnusedParameters": true,
 		"strictNullChecks": true,
-		"noImplicitAny": false,
+		"noImplicitAny": true,
 		"lib": [
 			"dom",
 			"es2015",
