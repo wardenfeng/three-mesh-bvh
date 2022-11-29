@@ -1,4 +1,4 @@
-import { Vector3, Vector2, Triangle, DoubleSide, BackSide } from 'three';
+import { Vector3, Vector2, Triangle, DoubleSide, BackSide, Ray, Side, BufferAttribute, InterleavedBufferAttribute, BufferGeometry } from 'three';
 
 // Ripped and modified From THREE.js Mesh raycast
 // https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L115
@@ -11,22 +11,25 @@ const uvB = /* @__PURE__ */ new Vector2();
 const uvC = /* @__PURE__ */ new Vector2();
 
 const intersectionPoint = /* @__PURE__ */ new Vector3();
-function checkIntersection( ray, pA, pB, pC, point, side ) {
+function checkIntersection(ray: Ray, pA: Vector3, pB: Vector3, pC: Vector3, point: Vector3, side: Side)
+{
 
 	let intersect;
-	if ( side === BackSide ) {
+	if (side === BackSide)
+	{
 
-		intersect = ray.intersectTriangle( pC, pB, pA, true, point );
+		intersect = ray.intersectTriangle(pC, pB, pA, true, point);
 
-	} else {
+	} else
+	{
 
-		intersect = ray.intersectTriangle( pA, pB, pC, side !== DoubleSide, point );
+		intersect = ray.intersectTriangle(pA, pB, pC, side !== DoubleSide, point);
 
 	}
 
-	if ( intersect === null ) return null;
+	if (intersect === null) return null;
 
-	const distance = ray.origin.distanceTo( point );
+	const distance = ray.origin.distanceTo(point);
 
 	return {
 
@@ -37,23 +40,35 @@ function checkIntersection( ray, pA, pB, pC, point, side ) {
 
 }
 
-function checkBufferGeometryIntersection( ray, position, uv, a, b, c, side ) {
+interface IntersectionType
+{
+	faceIndex?: number;
+	face?: { a: number; b: number; c: number; normal: Vector3; materialIndex: number; };
+	uv?: Vector2;
+	distance: number;
+	point: Vector3;
+}
 
-	vA.fromBufferAttribute( position, a );
-	vB.fromBufferAttribute( position, b );
-	vC.fromBufferAttribute( position, c );
+function checkBufferGeometryIntersection(ray: Ray, position: BufferAttribute | InterleavedBufferAttribute, uv: BufferAttribute, a: number, b: number, c: number, side: Side)
+{
 
-	const intersection = checkIntersection( ray, vA, vB, vC, intersectionPoint, side );
+	vA.fromBufferAttribute(position, a);
+	vB.fromBufferAttribute(position, b);
+	vC.fromBufferAttribute(position, c);
 
-	if ( intersection ) {
+	const intersection: IntersectionType | null = checkIntersection(ray, vA, vB, vC, intersectionPoint, side);
 
-		if ( uv ) {
+	if (intersection)
+	{
 
-			uvA.fromBufferAttribute( uv, a );
-			uvB.fromBufferAttribute( uv, b );
-			uvC.fromBufferAttribute( uv, c );
+		if (uv)
+		{
 
-			intersection.uv = Triangle.getUV( intersectionPoint, vA, vB, vC, uvA, uvB, uvC, new Vector2( ) );
+			uvA.fromBufferAttribute(uv, a);
+			uvB.fromBufferAttribute(uv, b);
+			uvC.fromBufferAttribute(uv, c);
+
+			intersection.uv = Triangle.getUV(intersectionPoint, vA, vB, vC, uvA, uvB, uvC, new Vector2());
 
 		}
 
@@ -65,7 +80,7 @@ function checkBufferGeometryIntersection( ray, position, uv, a, b, c, side ) {
 			materialIndex: 0
 		};
 
-		Triangle.getNormal( vA, vB, vC, face.normal );
+		Triangle.getNormal(vA, vB, vC, face.normal);
 
 		intersection.face = face;
 		intersection.faceIndex = a;
@@ -77,19 +92,21 @@ function checkBufferGeometryIntersection( ray, position, uv, a, b, c, side ) {
 }
 
 // https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L258
-function intersectTri( geo, side, ray, tri, intersections ) {
+function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, intersections: IntersectionType[])
+{
 
 	const triOffset = tri * 3;
-	const a = geo.index.getX( triOffset );
-	const b = geo.index.getX( triOffset + 1 );
-	const c = geo.index.getX( triOffset + 2 );
+	const a = geo.index!.getX(triOffset);
+	const b = geo.index!.getX(triOffset + 1);
+	const c = geo.index!.getX(triOffset + 2);
 
-	const intersection = checkBufferGeometryIntersection( ray, geo.attributes.position, geo.attributes.uv, a, b, c, side );
+	const intersection = checkBufferGeometryIntersection(ray, geo.attributes.position, geo.attributes.uv as any, a, b, c, side);
 
-	if ( intersection ) {
+	if (intersection)
+	{
 
 		intersection.faceIndex = tri;
-		if ( intersections ) intersections.push( intersection );
+		if (intersections) intersections.push(intersection);
 		return intersection;
 
 	}

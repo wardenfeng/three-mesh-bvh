@@ -6,34 +6,41 @@ const ray = /* @__PURE__ */ new Ray();
 const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
 const origMeshRaycastFunc = Mesh.prototype.raycast;
 
-export function acceleratedRaycast( raycaster, intersects ) {
+export function acceleratedRaycast(this: Mesh, raycaster, intersects)
+{
 
-	if ( this.geometry.boundsTree ) {
+	if (this.geometry.boundsTree)
+	{
 
-		if ( this.material === undefined ) return;
+		if (this.material === undefined) return;
 
-		tmpInverseMatrix.copy( this.matrixWorld ).invert();
-		ray.copy( raycaster.ray ).applyMatrix4( tmpInverseMatrix );
+		tmpInverseMatrix.copy(this.matrixWorld).invert();
+		ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix);
 
 		const bvh = this.geometry.boundsTree;
-		if ( raycaster.firstHitOnly === true ) {
+		if (raycaster.firstHitOnly === true)
+		{
 
-			const hit = convertRaycastIntersect( bvh.raycastFirst( ray, this.material ), this, raycaster );
-			if ( hit ) {
+			const hit = convertRaycastIntersect(bvh.raycastFirst(ray, this.material), this, raycaster);
+			if (hit)
+			{
 
-				intersects.push( hit );
+				intersects.push(hit);
 
 			}
 
-		} else {
+		} else
+		{
 
-			const hits = bvh.raycast( ray, this.material );
-			for ( let i = 0, l = hits.length; i < l; i ++ ) {
+			const hits = bvh.raycast(ray, this.material);
+			for (let i = 0, l = hits.length; i < l; i++)
+			{
 
-				const hit = convertRaycastIntersect( hits[ i ], this, raycaster );
-				if ( hit ) {
+				const hit = convertRaycastIntersect(hits[i], this, raycaster);
+				if (hit)
+				{
 
-					intersects.push( hit );
+					intersects.push(hit);
 
 				}
 
@@ -41,22 +48,25 @@ export function acceleratedRaycast( raycaster, intersects ) {
 
 		}
 
-	} else {
+	} else
+	{
 
-		origMeshRaycastFunc.call( this, raycaster, intersects );
+		origMeshRaycastFunc.call(this, raycaster, intersects);
 
 	}
 
 }
 
-export function computeBoundsTree( options ) {
+export function computeBoundsTree(options)
+{
 
-	this.boundsTree = new MeshBVH( this, options );
+	this.boundsTree = new MeshBVH(this, options);
 	return this.boundsTree;
 
 }
 
-export function disposeBoundsTree() {
+export function disposeBoundsTree()
+{
 
 	this.boundsTree = null;
 
