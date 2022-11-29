@@ -1,4 +1,4 @@
-import { BufferAttribute } from 'three';
+import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Vector, Vector3 } from 'three';
 import { MeshBVHNode } from './MeshBVHNode';
 import { getLongestEdgeIndex, computeSurfaceArea, copyBounds, unionBounds, expandByTriangleBounds } from '../utils/ArrayBoxUtilities';
 import
@@ -7,7 +7,7 @@ import
 	BYTES_PER_NODE, FLOAT32_EPSILON, IS_LEAFNODE_FLAG,
 } from './Constants';
 
-function ensureIndex(geo, options)
+function ensureIndex(geo: BufferGeometry, options: { useSharedArrayBuffer?: boolean; })
 {
 
 	if (!geo.index)
@@ -52,11 +52,11 @@ function ensureIndex(geo, options)
 //                      g1 = [16, 40]           g2 = [41, 60]
 //
 // we would need four BVH roots: [0, 15], [16, 20], [21, 40], [41, 60].
-function getRootIndexRanges(geo)
+function getRootIndexRanges(geo: BufferGeometry)
 {
 	if (!geo.groups || !geo.groups.length)
 	{
-		return [{ offset: 0, count: geo.index.count / 3 }];
+		return [{ offset: 0, count: geo.index!.count / 3 }];
 	}
 
 	const ranges: { offset: number, count: number }[] = [];
@@ -82,7 +82,7 @@ function getRootIndexRanges(geo)
 // computes the union of the bounds of all of the given triangles and puts the resulting box in target. If
 // centroidTarget is provided then a bounding box is computed for the centroids of the triangles, as well.
 // These are computed together to avoid redundant accesses to bounds array.
-function getBounds(triangleBounds: any[] | Float32Array, offset: number, count: number, target: Float32Array, centroidTarget: Float32Array | null = null)
+function getBounds(triangleBounds: number[] | Float32Array, offset: number, count: number, target: Float32Array, centroidTarget: Float32Array | null = null)
 {
 
 	let minx = Infinity;
@@ -156,7 +156,7 @@ function getBounds(triangleBounds: any[] | Float32Array, offset: number, count: 
 }
 
 // A stand alone function for retrieving the centroid bounds.
-function getCentroidBounds(triangleBounds, offset, count, centroidTarget)
+function getCentroidBounds(triangleBounds: number[] | Float32Array, offset: number, count: number, centroidTarget: number[] | Float32Array)
 {
 
 	let cminx = Infinity;
@@ -197,7 +197,7 @@ function getCentroidBounds(triangleBounds, offset, count, centroidTarget)
 // reorders `tris` such that for `count` elements after `offset`, elements on the left side of the split
 // will be on the left and elements on the right side of the split will be on the right. returns the index
 // of the first element on the right side, or offset + count if there are no elements on the right side.
-function partition(index, triangleBounds, offset, count, split)
+function partition(index: number[] | Float32Array, triangleBounds: number[] | Float32Array, offset: number, count: number, split: { axis: number; pos: number; })
 {
 
 	let left = offset;
@@ -281,7 +281,7 @@ const sahBins = new Array(BIN_COUNT).fill(undefined).map(() =>
 });
 const leftBounds = new Float32Array(6);
 
-function getOptimalSplit(nodeBoundingData, centroidBoundingData, triangleBounds, offset, count, strategy)
+function getOptimalSplit(nodeBoundingData: number[] | Float32Array, centroidBoundingData: number[] | Float32Array, triangleBounds: number[] | Float32Array, offset: number, count: number, strategy: number)
 {
 
 	let axis = - 1;
@@ -589,7 +589,7 @@ function getOptimalSplit(nodeBoundingData, centroidBoundingData, triangleBounds,
 }
 
 // returns the average coordinate on the specified axis of the all the provided triangles
-function getAverage(triangleBounds, offset, count, axis)
+function getAverage(triangleBounds: Float32Array | number[], offset: number, count: number, axis: number)
 {
 
 	let avg = 0;
@@ -608,11 +608,11 @@ function getAverage(triangleBounds, offset, count, axis)
 // result is an array of size tris.length * 6 where triangle i maps to a
 // [x_center, x_delta, y_center, y_delta, z_center, z_delta] tuple starting at index i * 6,
 // representing the center and half-extent in each dimension of triangle i
-function computeTriangleBounds(geo, fullBounds)
+function computeTriangleBounds(geo: BufferGeometry, fullBounds: number[] | Float32Array)
 {
 
-	const posAttr = geo.attributes.position;
-	const index = geo.index.array;
+	const posAttr = geo.attributes.position as InterleavedBufferAttribute;
+	const index = geo.index!.array;
 	const triCount = index.length / 3;
 	const triangleBounds = new Float32Array(triCount * 6);
 	const normalized = posAttr.normalized;
@@ -631,7 +631,7 @@ function computeTriangleBounds(geo, fullBounds)
 	}
 
 	// used for normalized positions
-	const getters = ['getX', 'getY', 'getZ'];
+	const getters: ('getX' | 'getY' | 'getZ')[] = ['getX', 'getY', 'getZ'];
 
 	for (let tri = 0; tri < triCount; tri++)
 	{
@@ -705,10 +705,13 @@ function computeTriangleBounds(geo, fullBounds)
 
 }
 
-export function buildTree(geo, options)
+export function buildTree(geo: BufferGeometry,
+	options: {
+		useSharedArrayBuffer?: boolean; maxDepth: number; verbose?: boolean; maxLeafTris: number; strategy: number; onProgress?: (n: number) => void;
+	})
 {
 
-	function triggerProgress(trianglesProcessed)
+	function triggerProgress(trianglesProcessed: number)
 	{
 
 		if (onProgress)
@@ -722,7 +725,7 @@ export function buildTree(geo, options)
 
 	// either recursively splits the given node, creating left and right subtrees for it, or makes it a leaf node,
 	// recording the offset and count of its triangles and writing them into the reordered geometry index.
-	function splitNode(node, offset, count, centroidBoundingData: Float32Array | null = null, depth = 0)
+	function splitNode(node: MeshBVHNode, offset: number, count: number, centroidBoundingData: Float32Array | null = null, depth = 0)
 	{
 
 		if (!reachedMaxDepth && depth >= maxDepth)
@@ -751,7 +754,7 @@ export function buildTree(geo, options)
 		}
 
 		// Find where to split the volume
-		const split = getOptimalSplit(node.boundingData, centroidBoundingData, triangleBounds, offset, count, strategy);
+		const split = getOptimalSplit(node.boundingData!, centroidBoundingData!, triangleBounds, offset, count, strategy);
 		if (split.axis === - 1)
 		{
 
@@ -762,7 +765,7 @@ export function buildTree(geo, options)
 
 		}
 
-		const splitOffset = partition(indexArray, triangleBounds, offset, count, split);
+		const splitOffset = partition(indexArray as any, triangleBounds, offset, count, split);
 
 		// create the two new child nodes
 		if (splitOffset === offset || splitOffset === offset + count)
@@ -811,13 +814,13 @@ export function buildTree(geo, options)
 	const fullBounds = new Float32Array(6);
 	const cacheCentroidBoundingData = new Float32Array(6);
 	const triangleBounds = computeTriangleBounds(geo, fullBounds);
-	const indexArray = geo.index.array;
+	const indexArray = geo.index!.array;
 	const maxDepth = options.maxDepth;
 	const verbose = options.verbose;
 	const maxLeafTris = options.maxLeafTris;
 	const strategy = options.strategy;
 	const onProgress = options.onProgress;
-	const totalTriangles = geo.index.count / 3;
+	const totalTriangles = geo.index!.count / 3;
 	let reachedMaxDepth = false;
 
 	const roots: MeshBVHNode[] = [];
@@ -855,13 +858,13 @@ export function buildTree(geo, options)
 
 }
 
-export function buildPackedTree(geo, options)
+export function buildPackedTree(geo: BufferGeometry, options: { useSharedArrayBuffer?: boolean; })
 {
 
 	// boundingData  				: 6 float32
 	// right / offset 				: 1 uint32
 	// splitAxis / isLeaf + count 	: 1 uint32 / 2 uint16
-	const roots = buildTree(geo, options);
+	const roots = buildTree(geo, options as any);
 
 	let float32Array;
 	let uint32Array;
@@ -885,7 +888,7 @@ export function buildPackedTree(geo, options)
 
 	return packedRoots;
 
-	function countNodes(node)
+	function countNodes(node: MeshBVHNode): number
 	{
 
 		if (node.count)
@@ -902,7 +905,7 @@ export function buildPackedTree(geo, options)
 
 	}
 
-	function populateBuffer(byteOffset, node)
+	function populateBuffer(byteOffset: number, node: MeshBVHNode): number
 	{
 
 		const stride4Offset = byteOffset / 4;

@@ -1,7 +1,12 @@
 export class MeshBVHNode
 {
 
-	boundingData?: Float32Array;
+	boundingData!: Float32Array;
+	offset: number | undefined;
+	count: number | undefined;
+	splitAxis!: number;
+	left!: MeshBVHNode;
+	right!: MeshBVHNode;
 
 	constructor()
 	{

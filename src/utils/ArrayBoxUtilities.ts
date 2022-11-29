@@ -16,7 +16,7 @@ export function arrayToBox(nodeIndex32: number, array: Float32Array, target: Ori
 
 }
 
-export function getLongestEdgeIndex(bounds: number[])
+export function getLongestEdgeIndex(bounds: number[] | Float32Array)
 {
 
 	let splitDimIdx = - 1;
@@ -73,7 +73,7 @@ export function unionBounds(a: number[] | Float32Array, b: number[] | Float32Arr
 }
 
 // expands the given bounds by the provided triangle bounds
-export function expandByTriangleBounds(startIndex: number, triangleBounds: number[], bounds: number[] | Float32Array)
+export function expandByTriangleBounds(startIndex: number, triangleBounds: Float32Array | number[], bounds: number[] | Float32Array)
 {
 
 	for (let d = 0; d < 3; d++)
