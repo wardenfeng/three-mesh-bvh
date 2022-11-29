@@ -1,6 +1,10 @@
-export class MeshBVHNode {
+export class MeshBVHNode
+{
 
-	constructor() {
+	boundingData?: Float32Array;
+
+	constructor()
+	{
 
 		// internal nodes have boundingData, left, right, and splitAxis
 		// leaf nodes have offset and count (referring to primitives in the mesh geometry)
