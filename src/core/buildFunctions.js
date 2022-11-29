@@ -1,10 +1,10 @@
 import { BufferAttribute } from 'three';
-import { MeshBVHNode } from './MeshBVHNode.js';
-import { getLongestEdgeIndex, computeSurfaceArea, copyBounds, unionBounds, expandByTriangleBounds } from '../utils/ArrayBoxUtilities.js';
+import { MeshBVHNode } from './MeshBVHNode';
+import { getLongestEdgeIndex, computeSurfaceArea, copyBounds, unionBounds, expandByTriangleBounds } from '../utils/ArrayBoxUtilities';
 import {
 	CENTER, AVERAGE, SAH, TRIANGLE_INTERSECT_COST, TRAVERSAL_COST,
 	BYTES_PER_NODE, FLOAT32_EPSILON, IS_LEAFNODE_FLAG,
-} from './Constants.js';
+} from './Constants';
 
 function ensureIndex( geo, options ) {
 

@@ -1,6 +1,6 @@
 import { Box3, Vector3 } from 'three';
-import { TRAVERSAL_COST, TRIANGLE_INTERSECT_COST } from '../core/Constants.js';
-import { arrayToBox } from '../utils/ArrayBoxUtilities.js';
+import { TRAVERSAL_COST, TRIANGLE_INTERSECT_COST } from '../core/Constants';
+import { arrayToBox } from '../utils/ArrayBoxUtilities';
 
 const _box1 = /* @__PURE__ */ new Box3();
 const _box2 = /* @__PURE__ */ new Box3();

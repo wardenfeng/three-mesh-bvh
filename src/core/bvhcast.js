@@ -8,13 +8,13 @@
  */
 import { Box3 } from 'three';
 
-import { OrientedBox } from '../math/OrientedBox.js';
-import { arrayToBox } from '../utils/ArrayBoxUtilities.js';
-import { PrimitivePool } from '../utils/PrimitivePool.js';
-import { COUNT, OFFSET, LEFT_NODE, RIGHT_NODE, IS_LEAF, BOUNDING_DATA_INDEX } from './nodeBufferFunctions.js';
-import { MeshBVH } from './MeshBVH.js';
-import { setTriangle } from '../utils/TriangleUtilities.js';
-import { ExtendedTriangle } from '../math/ExtendedTriangle.js';
+import { OrientedBox } from '../math/OrientedBox';
+import { arrayToBox } from '../utils/ArrayBoxUtilities';
+import { PrimitivePool } from '../utils/PrimitivePool';
+import { COUNT, OFFSET, LEFT_NODE, RIGHT_NODE, IS_LEAF, BOUNDING_DATA_INDEX } from './nodeBufferFunctions';
+import { MeshBVH } from './MeshBVH';
+import { setTriangle } from '../utils/TriangleUtilities';
+import { ExtendedTriangle } from '../math/ExtendedTriangle';
 
 const trianglePool = /* @__PURE__ */ new PrimitivePool( () => new ExtendedTriangle() );
 

@@ -9,8 +9,8 @@ import {
 import {
 	FloatVertexAttributeTexture,
 	UIntVertexAttributeTexture,
-} from './VertexAttributeTexture.js';
-import { BYTES_PER_NODE } from '../core/Constants.js';
+} from './VertexAttributeTexture';
+import { BYTES_PER_NODE } from '../core/Constants';
 import {
 	BOUNDING_DATA_INDEX,
 	COUNT,
@@ -18,7 +18,7 @@ import {
 	RIGHT_NODE,
 	OFFSET,
 	SPLIT_AXIS,
-} from '../core/nodeBufferFunctions.js';
+} from '../core/nodeBufferFunctions';
 
 function bvhToTextures( bvh, boundsTexture, contentsTexture ) {
 

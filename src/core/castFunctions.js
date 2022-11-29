@@ -1,13 +1,13 @@
 import { Box3, Vector3, Matrix4 } from 'three';
-import { CONTAINED } from './Constants.js';
+import { CONTAINED } from './Constants';
 
-import { OrientedBox } from '../math/OrientedBox.js';
-import { ExtendedTriangle } from '../math/ExtendedTriangle.js';
-import { intersectTris, intersectClosestTri } from '../utils/GeometryRayIntersectUtilities.js';
-import { setTriangle } from '../utils/TriangleUtilities.js';
-import { arrayToBox } from '../utils/ArrayBoxUtilities.js';
-import { PrimitivePool } from '../utils/PrimitivePool.js';
-import { COUNT, OFFSET, LEFT_NODE, RIGHT_NODE, IS_LEAF, BOUNDING_DATA_INDEX, SPLIT_AXIS } from './nodeBufferFunctions.js';
+import { OrientedBox } from '../math/OrientedBox';
+import { ExtendedTriangle } from '../math/ExtendedTriangle';
+import { intersectTris, intersectClosestTri } from '../utils/GeometryRayIntersectUtilities';
+import { setTriangle } from '../utils/TriangleUtilities';
+import { arrayToBox } from '../utils/ArrayBoxUtilities';
+import { PrimitivePool } from '../utils/PrimitivePool';
+import { COUNT, OFFSET, LEFT_NODE, RIGHT_NODE, IS_LEAF, BOUNDING_DATA_INDEX, SPLIT_AXIS } from './nodeBufferFunctions';
 
 const boundingBox = new Box3();
 const boxIntersection = new Vector3();

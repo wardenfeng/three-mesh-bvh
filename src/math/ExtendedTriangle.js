@@ -1,6 +1,6 @@
 import { Triangle, Vector3, Line3, Sphere, Plane } from 'three';
-import { SeparatingAxisBounds } from './SeparatingAxisBounds.js';
-import { closestPointsSegmentToSegment, sphereIntersectTriangle } from './MathUtilities.js';
+import { SeparatingAxisBounds } from './SeparatingAxisBounds';
+import { closestPointsSegmentToSegment, sphereIntersectTriangle } from './MathUtilities';
 
 const DIST_EPSILON = 1e-15;
 function isNearZero( value ) {

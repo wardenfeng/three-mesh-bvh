@@ -1,6 +1,6 @@
 import { Ray, Matrix4, Mesh } from 'three';
-import { convertRaycastIntersect } from './GeometryRayIntersectUtilities.js';
-import { MeshBVH } from '../core/MeshBVH.js';
+import { convertRaycastIntersect } from './GeometryRayIntersectUtilities';
+import { MeshBVH } from '../core/MeshBVH';
 
 const ray = /* @__PURE__ */ new Ray();
 const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
