@@ -1,20 +1,26 @@
-export class PrimitivePool {
+export class PrimitivePool<T> {
+	private _getNewPrimitive: () => T;
+	_primitives: T[];
 
-	constructor( getNewPrimitive ) {
+	constructor(getNewPrimitive: () => T)
+	{
 
 		this._getNewPrimitive = getNewPrimitive;
 		this._primitives = [];
 
 	}
 
-	getPrimitive() {
+	getPrimitive()
+	{
 
 		const primitives = this._primitives;
-		if ( primitives.length === 0 ) {
+		if (primitives.length === 0)
+		{
 
 			return this._getNewPrimitive();
 
-		} else {
+		} else
+		{
 
 			return primitives.pop();
 
@@ -22,9 +28,10 @@ export class PrimitivePool {
 
 	}
 
-	releasePrimitive( primitive ) {
+	releasePrimitive(primitive: T)
+	{
 
-		this._primitives.push( primitive );
+		this._primitives.push(primitive);
 
 	}
 

@@ -16,7 +16,7 @@ export class OrientedBox
 	alignedSatBounds: SeparatingAxisBounds[];
 	needsUpdate: boolean;
 
-	constructor(min: Vector3, max: Vector3, matrix: Matrix4)
+	constructor(min?: Vector3, max?: Vector3, matrix?: Matrix4)
 	{
 
 		this.isOrientedBox = true;
