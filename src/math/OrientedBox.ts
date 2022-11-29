@@ -333,6 +333,7 @@ OrientedBox.prototype.distanceToBox = (function ()
 
 				box.getCenter(point2);
 				this.closestPointToPoint(point2, point1);
+				// @ts-ignore
 				box.closestPointToPoint(point1, point2);
 
 				if (target1) target1.copy(point1);
