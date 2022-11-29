@@ -1,22 +1,29 @@
-import { Vector3 } from 'three';
+import { Box3, Vector3 } from 'three';
 
-export class SeparatingAxisBounds {
+export class SeparatingAxisBounds
+{
+	min: number;
+	max: number;
 
-	constructor() {
+	constructor()
+	{
 
 		this.min = Infinity;
 		this.max = - Infinity;
 
 	}
 
-	setFromPointsField( points, field ) {
+	// setFromPointsField<K extends keyof T, T extends { [index: string]: number }>(points: T[], field: K)
+	setFromPointsField(points: Vector3[], field: 'x' | 'y' | 'z')
+	{
 
 		let min = Infinity;
 		let max = - Infinity;
-		for ( let i = 0, l = points.length; i < l; i ++ ) {
+		for (let i = 0, l = points.length; i < l; i++)
+		{
 
-			const p = points[ i ];
-			const val = p[ field ];
+			const p = points[i];
+			const val = p[field];
 			min = val < min ? val : min;
 			max = val > max ? val : max;
 
@@ -27,14 +34,16 @@ export class SeparatingAxisBounds {
 
 	}
 
-	setFromPoints( axis, points ) {
+	setFromPoints(axis: Vector3, points: Vector3[])
+	{
 
 		let min = Infinity;
 		let max = - Infinity;
-		for ( let i = 0, l = points.length; i < l; i ++ ) {
+		for (let i = 0, l = points.length; i < l; i++)
+		{
 
-			const p = points[ i ];
-			const val = axis.dot( p );
+			const p = points[i];
+			const val = axis.dot(p);
 			min = val < min ? val : min;
 			max = val > max ? val : max;
 
@@ -45,7 +54,8 @@ export class SeparatingAxisBounds {
 
 	}
 
-	isSeparated( other ) {
+	isSeparated(other)
+	{
 
 		return this.min > other.max || other.min > this.max;
 
@@ -53,28 +63,38 @@ export class SeparatingAxisBounds {
 
 }
 
-SeparatingAxisBounds.prototype.setFromBox = ( function () {
+export interface SeparatingAxisBounds
+{
+	setFromBox: (this: SeparatingAxisBounds, axis: Vector3, box: Box3) => void
+}
+
+SeparatingAxisBounds.prototype.setFromBox = (function ()
+{
 
 	const p = new Vector3();
-	return function setFromBox( axis, box ) {
+	return function setFromBox(this: SeparatingAxisBounds, axis: Vector3, box: Box3)
+	{
 
 		const boxMin = box.min;
 		const boxMax = box.max;
 		let min = Infinity;
 		let max = - Infinity;
-		for ( let x = 0; x <= 1; x ++ ) {
+		for (let x = 0; x <= 1; x++)
+		{
 
-			for ( let y = 0; y <= 1; y ++ ) {
+			for (let y = 0; y <= 1; y++)
+			{
 
-				for ( let z = 0; z <= 1; z ++ ) {
+				for (let z = 0; z <= 1; z++)
+				{
 
-					p.x = boxMin.x * x + boxMax.x * ( 1 - x );
-					p.y = boxMin.y * y + boxMax.y * ( 1 - y );
-					p.z = boxMin.z * z + boxMax.z * ( 1 - z );
+					p.x = boxMin.x * x + boxMax.x * (1 - x);
+					p.y = boxMin.y * y + boxMax.y * (1 - y);
+					p.z = boxMin.z * z + boxMax.z * (1 - z);
 
-					const val = axis.dot( p );
-					min = Math.min( val, min );
-					max = Math.max( val, max );
+					const val = axis.dot(p);
+					min = Math.min(val, min);
+					max = Math.max(val, max);
 
 				}
 
@@ -87,12 +107,16 @@ SeparatingAxisBounds.prototype.setFromBox = ( function () {
 
 	};
 
-} )();
+})();
 
-export const areIntersecting = ( function () {
+export const areIntersecting = (function ()
+{
 
 	const cacheSatBounds = new SeparatingAxisBounds();
-	return function areIntersecting( shape1, shape2 ) {
+	return function areIntersecting(
+		shape1: { points: Vector3[]; satAxes: Vector3[]; satBounds: SeparatingAxisBounds[]; },
+		shape2: { points: Vector3[]; satAxes: Vector3[]; satBounds: SeparatingAxisBounds[]; })
+	{
 
 		const points1 = shape1.points;
 		const satAxes1 = shape1.satAxes;
@@ -103,25 +127,27 @@ export const areIntersecting = ( function () {
 		const satBounds2 = shape2.satBounds;
 
 		// check axes of the first shape
-		for ( let i = 0; i < 3; i ++ ) {
+		for (let i = 0; i < 3; i++)
+		{
 
-			const sb = satBounds1[ i ];
-			const sa = satAxes1[ i ];
-			cacheSatBounds.setFromPoints( sa, points2 );
-			if ( sb.isSeparated( cacheSatBounds ) ) return false;
+			const sb = satBounds1[i];
+			const sa = satAxes1[i];
+			cacheSatBounds.setFromPoints(sa, points2);
+			if (sb.isSeparated(cacheSatBounds)) return false;
 
 		}
 
 		// check axes of the second shape
-		for ( let i = 0; i < 3; i ++ ) {
+		for (let i = 0; i < 3; i++)
+		{
 
-			const sb = satBounds2[ i ];
-			const sa = satAxes2[ i ];
-			cacheSatBounds.setFromPoints( sa, points1 );
-			if ( sb.isSeparated( cacheSatBounds ) ) return false;
+			const sb = satBounds2[i];
+			const sa = satAxes2[i];
+			cacheSatBounds.setFromPoints(sa, points1);
+			if (sb.isSeparated(cacheSatBounds)) return false;
 
 		}
 
 	};
 
-} )();
+})();

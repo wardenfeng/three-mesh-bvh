@@ -1,4 +1,4 @@
-import { Vector3, Vector2, Plane, Line3, Triangle, Sphere, LineSegments } from 'three';
+import { Line3, Plane, Sphere, Triangle, Vector2, Vector3 } from 'three';
 
 export const closestPointLineToLine = (function ()
 {
