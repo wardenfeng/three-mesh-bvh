@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
+		"target": "ES5",
 		"baseUrl": ".",
 		"noEmit": true,
-		"strict": true,
 		"noUnusedParameters": true,
 		"noImplicitAny": true,
 		"lib": [

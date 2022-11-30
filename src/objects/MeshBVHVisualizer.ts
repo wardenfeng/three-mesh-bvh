@@ -1,28 +1,40 @@
-import { LineBasicMaterial, BufferAttribute, Box3, Group, MeshBasicMaterial, Object3D, BufferGeometry } from 'three';
+import { LineBasicMaterial, BufferAttribute, Box3, Group, MeshBasicMaterial, Object3D, BufferGeometry, Mesh, Material } from 'three';
 import { arrayToBox } from '../utils/ArrayBoxUtilities';
 
 const boundingBox = /* @__PURE__ */ new Box3();
-class MeshBVHRootVisualizer extends Object3D {
+class MeshBVHRootVisualizer extends Object3D
+{
+	displayEdges: any;
+	material: Material;
+	geometry: BufferGeometry;
+	depth: number;
+	displayParents: boolean;
+	mesh: Mesh<BufferGeometry, Material | Material[]>;
+	_group: number;
 
-	get isMesh() {
+	get isMesh()
+	{
 
-		return ! this.displayEdges;
+		return !this.displayEdges;
 
 	}
 
-	get isLineSegments() {
+	get isLineSegments()
+	{
 
 		return this.displayEdges;
 
 	}
 
-	get isLine() {
+	get isLine()
+	{
 
 		return this.displayEdges;
 
 	}
 
-	constructor( mesh, material, depth = 10, group = 0 ) {
+	constructor(mesh: Mesh, material: Material, depth = 10, group = 0)
+	{
 
 		super();
 
@@ -37,59 +49,69 @@ class MeshBVHRootVisualizer extends Object3D {
 
 	}
 
-	raycast() {}
+	raycast() { }
 
-	update() {
+	update()
+	{
 
 		const geometry = this.geometry;
 		const boundsTree = this.mesh.geometry.boundsTree;
 		const group = this._group;
 		geometry.dispose();
 		this.visible = false;
-		if ( boundsTree ) {
+		if (boundsTree)
+		{
 
 			// count the number of bounds required
 			const targetDepth = this.depth - 1;
 			const displayParents = this.displayParents;
 			let boundsCount = 0;
-			boundsTree.traverse( ( depth, isLeaf ) => {
+			boundsTree.traverse((depth, isLeaf) =>
+			{
 
-				if ( depth === targetDepth || isLeaf ) {
+				if (depth === targetDepth || isLeaf)
+				{
 
-					boundsCount ++;
+					boundsCount++;
 					return true;
 
-				} else if ( displayParents ) {
+				} else if (displayParents)
+				{
 
-					boundsCount ++;
+					boundsCount++;
 
 				}
 
-			}, group );
+			}, group);
 
 			// fill in the position buffer with the bounds corners
 			let posIndex = 0;
-			const positionArray = new Float32Array( 8 * 3 * boundsCount );
-			boundsTree.traverse( ( depth, isLeaf, boundingData ) => {
+			const positionArray = new Float32Array(8 * 3 * boundsCount);
+			boundsTree.traverse((depth, isLeaf, boundingData) =>
+			{
 
 				const terminate = depth === targetDepth || isLeaf;
-				if ( terminate || displayParents ) {
+				if (terminate || displayParents)
+				{
 
-					arrayToBox( 0, boundingData, boundingBox );
+					arrayToBox(0, boundingData as Float32Array, boundingBox);
 
 					const { min, max } = boundingBox;
-					for ( let x = - 1; x <= 1; x += 2 ) {
+					for (let x = - 1; x <= 1; x += 2)
+					{
 
 						const xVal = x < 0 ? min.x : max.x;
-						for ( let y = - 1; y <= 1; y += 2 ) {
+						for (let y = - 1; y <= 1; y += 2)
+						{
 
 							const yVal = y < 0 ? min.y : max.y;
-							for ( let z = - 1; z <= 1; z += 2 ) {
+							for (let z = - 1; z <= 1; z += 2)
+							{
 
 								const zVal = z < 0 ? min.z : max.z;
-								positionArray[ posIndex + 0 ] = xVal;
-								positionArray[ posIndex + 1 ] = yVal;
-								positionArray[ posIndex + 2 ] = zVal;
+								positionArray[posIndex + 0] = xVal;
+								positionArray[posIndex + 1] = yVal;
+								positionArray[posIndex + 2] = zVal;
 
 								posIndex += 3;
 
@@ -103,14 +125,15 @@ class MeshBVHRootVisualizer extends Object3D {
 
 				}
 
-			}, group );
+			}, group);
 
 			let indexArray;
 			let indices;
-			if ( this.displayEdges ) {
+			if (this.displayEdges)
+			{
 
 				// fill in the index buffer to point to the corner points
-				indices = new Uint8Array( [
+				indices = new Uint8Array([
 					// x axis
 					0, 4,
 					1, 5,
@@ -128,11 +151,12 @@ class MeshBVHRootVisualizer extends Object3D {
 					2, 3,
 					4, 5,
 					6, 7,
-				] );
+				]);
 
-			} else {
+			} else
+			{
 
-				indices = new Uint8Array( [
+				indices = new Uint8Array([
 
 					// X-, X+
 					0, 1, 2,
@@ -155,28 +179,32 @@ class MeshBVHRootVisualizer extends Object3D {
 					1, 5, 3,
 					3, 5, 7,
 
-				] );
+				]);
 
 			}
 
-			if ( positionArray.length > 65535 ) {
+			if (positionArray.length > 65535)
+			{
 
-				indexArray = new Uint32Array( indices.length * boundsCount );
+				indexArray = new Uint32Array(indices.length * boundsCount);
 
-			} else {
+			} else
+			{
 
-				indexArray = new Uint16Array( indices.length * boundsCount );
+				indexArray = new Uint16Array(indices.length * boundsCount);
 
 			}
 
 			const indexLength = indices.length;
-			for ( let i = 0; i < boundsCount; i ++ ) {
+			for (let i = 0; i < boundsCount; i++)
+			{
 
 				const posOffset = i * 8;
 				const indexOffset = i * indexLength;
-				for ( let j = 0; j < indexLength; j ++ ) {
+				for (let j = 0; j < indexLength; j++)
+				{
 
-					indexArray[ indexOffset + j ] = posOffset + indices[ j ];
+					indexArray[indexOffset + j] = posOffset + indices[j];
 
 				}
 
@@ -184,11 +212,11 @@ class MeshBVHRootVisualizer extends Object3D {
 
 			// update the geometry
 			geometry.setIndex(
-				new BufferAttribute( indexArray, 1, false ),
+				new BufferAttribute(indexArray, 1, false),
 			);
 			geometry.setAttribute(
 				'position',
-				new BufferAttribute( positionArray, 3, false ),
+				new BufferAttribute(positionArray, 3, false),
 			);
 			this.visible = true;
 
@@ -198,28 +226,40 @@ class MeshBVHRootVisualizer extends Object3D {
 
 }
 
-class MeshBVHVisualizer extends Group {
+class MeshBVHVisualizer extends Group
+{
+	edgeMaterial: any;
+	meshMaterial: any;
+	depth: number;
+	mesh: any;
+	displayParents: boolean;
+	displayEdges: boolean;
+	_roots: MeshBVHRootVisualizer[];
 
-	get color() {
+	get color()
+	{
 
 		return this.edgeMaterial.color;
 
 	}
 
-	get opacity() {
+	get opacity()
+	{
 
 		return this.edgeMaterial.opacity;
 
 	}
 
-	set opacity( v ) {
+	set opacity(v)
+	{
 
 		this.edgeMaterial.opacity = v;
 		this.meshMaterial.opacity = v;
 
 	}
 
-	constructor( mesh, depth = 10 ) {
+	constructor(mesh: Mesh, depth = 10)
+	{
 
 		super();
 
@@ -230,19 +270,19 @@ class MeshBVHVisualizer extends Group {
 		this.displayEdges = true;
 		this._roots = [];
 
-		const edgeMaterial = new LineBasicMaterial( {
+		const edgeMaterial = new LineBasicMaterial({
 			color: 0x00FF88,
 			transparent: true,
 			opacity: 0.3,
 			depthWrite: false,
-		} );
+		});
 
-		const meshMaterial = new MeshBasicMaterial( {
+		const meshMaterial = new MeshBasicMaterial({
 			color: 0x00FF88,
 			transparent: true,
 			opacity: 0.3,
 			depthWrite: false,
-		} );
+		});
 
 		meshMaterial.color = edgeMaterial.color;
 
@@ -253,29 +293,33 @@ class MeshBVHVisualizer extends Group {
 
 	}
 
-	update() {
+	update()
+	{
 
 		const bvh = this.mesh.geometry.boundsTree;
 		const totalRoots = bvh ? bvh._roots.length : 0;
-		while ( this._roots.length > totalRoots ) {
+		while (this._roots.length > totalRoots)
+		{
 
 			const root = this._roots.pop();
 			root.geometry.dispose();
-			this.remove( root );
+			this.remove(root);
 
 		}
 
-		for ( let i = 0; i < totalRoots; i ++ ) {
+		for (let i = 0; i < totalRoots; i++)
+		{
 
-			if ( i >= this._roots.length ) {
+			if (i >= this._roots.length)
+			{
 
-				const root = new MeshBVHRootVisualizer( this.mesh, this.edgeMaterial, this.depth, i );
-				this.add( root );
-				this._roots.push( root );
+				const root = new MeshBVHRootVisualizer(this.mesh, this.edgeMaterial, this.depth, i);
+				this.add(root);
+				this._roots.push(root);
 
 			}
 
-			const root = this._roots[ i ];
+			const root = this._roots[i];
 			root.depth = this.depth;
 			root.mesh = this.mesh;
 			root.displayParents = this.displayParents;
@@ -287,38 +331,44 @@ class MeshBVHVisualizer extends Group {
 
 	}
 
-	updateMatrixWorld( ...args ) {
+	updateMatrixWorld(...args: any[])
+	{
 
-		this.position.copy( this.mesh.position );
-		this.rotation.copy( this.mesh.rotation );
-		this.scale.copy( this.mesh.scale );
+		this.position.copy(this.mesh.position);
+		this.rotation.copy(this.mesh.rotation);
+		this.scale.copy(this.mesh.scale);
 
-		super.updateMatrixWorld( ...args );
+		super.updateMatrixWorld(...args);
 
 	}
 
-	copy( source ) {
+	copy(source: MeshBVHVisualizer)
+	{
 
 		this.depth = source.depth;
 		this.mesh = source.mesh;
 
+		return this;
 	}
 
-	clone() {
+	clone()
+	{
 
-		return new MeshBVHVisualizer( this.mesh, this.depth );
+		return new MeshBVHVisualizer(this.mesh, this.depth) as this;
 
 	}
 
-	dispose() {
+	dispose()
+	{
 
 		this.edgeMaterial.dispose();
 		this.meshMaterial.dispose();
 
-		const children = this.children;
-		for ( let i = 0, l = children.length; i < l; i ++ ) {
+		const children = this.children as MeshBVHRootVisualizer[];
+		for (let i = 0, l = children.length; i < l; i++)
+		{
 
-			children[ i ].geometry.dispose();
+			children[i].geometry.dispose();
 
 		}
 
