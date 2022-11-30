@@ -7,6 +7,7 @@ export class MeshBVHNode
 	splitAxis!: number;
 	left!: MeshBVHNode;
 	right!: MeshBVHNode;
+	byteLength: number;
 
 	constructor()
 	{

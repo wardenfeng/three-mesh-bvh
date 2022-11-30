@@ -1,4 +1,4 @@
-import { Vector3, BufferAttribute, Box3, FrontSide, Matrix4, BufferGeometry } from 'three';
+import { Vector3, BufferAttribute, Box3, FrontSide, Matrix4, BufferGeometry, InterleavedBufferAttribute, Ray, Triangle } from 'three';
 import { CENTER, BYTES_PER_NODE, IS_LEAFNODE_FLAG } from './Constants';
 import { buildPackedTree } from './buildFunctions';
 import
@@ -16,6 +16,7 @@ import { PrimitivePool } from '../utils/PrimitivePool';
 import { arrayToBox } from '../utils/ArrayBoxUtilities';
 import { iterateOverTriangles, setTriangle } from '../utils/TriangleUtilities';
 import { MeshBVHNode } from './MeshBVHNode';
+import { IntersectionType } from 'src/utils/ThreeRayIntersectUtilities';
 
 const SKIP_GENERATION = Symbol('skip tree generation');
 
@@ -34,10 +35,15 @@ const trianglePool = /* @__PURE__ */ new PrimitivePool(() => new ExtendedTriangl
 
 export class MeshBVH
 {
-	_roots: MeshBVHNode[];
+	_roots: ArrayBuffer[];
 	geometry: BufferGeometry;
 
-	static serialize(bvh, options = {})
+	static serialize(bvh: { geometry: BufferGeometry, _roots: [][] },
+		options: { isBufferGeometry?: boolean, cloneBuffers?: boolean } = {}):
+		{
+			roots: never[][];
+			index: Float32Array;
+		}
 	{
 
 		if (options.isBufferGeometry)
@@ -68,7 +74,7 @@ export class MeshBVH
 
 			result = {
 				roots: rootData.map(root => root.slice()),
-				index: indexAttribute.array.slice(),
+				index: (indexAttribute.array as Float32Array).slice(),
 			};
 
 		} else
@@ -76,7 +82,7 @@ export class MeshBVH
 
 			result = {
 				roots: rootData,
-				index: indexAttribute.array,
+				index: indexAttribute.array as Float32Array,
 			};
 
 		}
@@ -85,7 +91,8 @@ export class MeshBVH
 
 	}
 
-	static deserialize(data, geometry, options = {})
+	static deserialize(data: { index: Float32Array, roots: ArrayBuffer[] }, geometry: BufferGeometry,
+		options: { setIndex?: boolean } = {}): MeshBVH
 	{
 
 		if (typeof options === 'boolean')
@@ -125,7 +132,7 @@ export class MeshBVH
 			} else if (indexAttribute.array !== index)
 			{
 
-				indexAttribute.array.set(index);
+				(indexAttribute.array as Float32Array).set(index);
 				indexAttribute.needsUpdate = true;
 
 			}
@@ -136,7 +143,11 @@ export class MeshBVH
 
 	}
 
-	constructor(geometry, options = {})
+	constructor(geometry: BufferGeometry,
+		options: {
+			setBoundingBox?: boolean; useSharedArrayBuffer?: boolean,
+			[key: symbol]: boolean
+		} = {})
 	{
 
 		if (!geometry.isBufferGeometry)
@@ -144,7 +155,7 @@ export class MeshBVH
 
 			throw new Error('MeshBVH: Only BufferGeometries are supported.');
 
-		} else if (geometry.index && geometry.index.isInterleavedBufferAttribute)
+		} else if (geometry.index && (geometry.index as any as InterleavedBufferAttribute).isInterleavedBufferAttribute)
 		{
 
 			throw new Error('MeshBVH: InterleavedBufferAttribute is not supported for the index attribute.');
@@ -197,9 +208,10 @@ export class MeshBVH
 
 	}
 
-	refit(nodeIndices = null)
+	refit(_nodeIndices: Set<number> | number[] = null)
 	{
 
+		let nodeIndices = _nodeIndices as Set<number>;
 		if (nodeIndices && Array.isArray(nodeIndices))
 		{
 
@@ -211,7 +223,7 @@ export class MeshBVH
 		const indexArr = geometry.index.array;
 		const posAttr = geometry.attributes.position;
 
-		let buffer, uint32Array, uint16Array, float32Array;
+		let buffer, uint32Array: Uint32Array, uint16Array: Uint16Array, float32Array: Float32Array;
 		let byteOffset = 0;
 		const roots = this._roots;
 		for (let i = 0, l = roots.length; i < l; i++)
@@ -227,7 +239,7 @@ export class MeshBVH
 
 		}
 
-		function _traverse(node32Index, byteOffset, force = false)
+		function _traverse(node32Index: number, byteOffset: number, force = false): boolean
 		{
 
 			const node16Index = node32Index * 2;
@@ -376,7 +388,7 @@ export class MeshBVH
 
 	}
 
-	traverse(callback, rootIndex = 0)
+	traverse(callback: (depth: number, isLeaf: boolean, data: Float32Array, offset: number, count?: number) => boolean, rootIndex = 0)
 	{
 
 		const buffer = this._roots[rootIndex];
@@ -384,7 +396,7 @@ export class MeshBVH
 		const uint16Array = new Uint16Array(buffer);
 		_traverse(0);
 
-		function _traverse(node32Index, depth = 0)
+		function _traverse(node32Index: number, depth = 0)
 		{
 
 			const node16Index = node32Index * 2;
@@ -420,12 +432,12 @@ export class MeshBVH
 	}
 
 	/* Core Cast Functions */
-	raycast(ray, materialOrSide = FrontSide)
+	raycast(ray: Ray, materialOrSide: { isMaterial: boolean, side: any } = FrontSide as any)
 	{
 
 		const roots = this._roots;
 		const geometry = this.geometry;
-		const intersects = [];
+		const intersects: IntersectionType[] = [];
 		const isMaterial = materialOrSide.isMaterial;
 		const isArrayMaterial = Array.isArray(materialOrSide);
 
@@ -460,7 +472,7 @@ export class MeshBVH
 
 	}
 
-	raycastFirst(ray, materialOrSide = FrontSide)
+	raycastFirst(ray: Ray, materialOrSide: { isMaterial: boolean, side: any } = FrontSide as any)
 	{
 
 		const roots = this._roots;
@@ -500,7 +512,7 @@ export class MeshBVH
 
 	}
 
-	intersectsGeometry(otherGeometry, geomToMesh)
+	intersectsGeometry(otherGeometry: any, geomToMesh: Matrix4)
 	{
 
 		const geometry = this.geometry;
@@ -525,7 +537,12 @@ export class MeshBVH
 
 	}
 
-	shapecast(callbacks, _intersectsTriangleFunc, _orderNodesFunc)
+	// shapecast(callbacks, _intersectsTriangleFunc: (tri: Triangle, index: number, contained: boolean, depth: number) => void, _orderNodesFunc)
+	shapecast(callbacks: {
+		intersectsBounds: any; intersectsRange?: any;
+		intersectsTriangle?: (tri: Triangle, index: number, contained: boolean, depth: number) => any; boundsTraverseOrder?: any;
+	},
+		_intersectsTriangleFunc: (tri: Triangle, index: number, index1: number, index2: number, contained: boolean, depth: number) => any, _orderNodesFunc: undefined)
 	{
 
 		const geometry = this.geometry;
@@ -538,13 +555,13 @@ export class MeshBVH
 				// Support the previous function signature that provided three sequential index buffer
 				// indices here.
 				const originalTriangleFunc = _intersectsTriangleFunc;
-				_intersectsTriangleFunc = (tri, index, contained, depth) =>
+				_intersectsTriangleFunc = ((tri: Triangle, index: number, contained: boolean, depth: number) =>
 				{
 
 					const i3 = index * 3;
 					return originalTriangleFunc(tri, i3, i3 + 1, i3 + 2, contained, depth);
 
-				};
+				}) as any;
 
 
 			}
@@ -553,7 +570,7 @@ export class MeshBVH
 
 				boundsTraverseOrder: _orderNodesFunc,
 				intersectsBounds: callbacks,
-				intersectsTriangle: _intersectsTriangleFunc,
+				intersectsTriangle: _intersectsTriangleFunc as any,
 				intersectsRange: null,
 
 			};
@@ -574,7 +591,7 @@ export class MeshBVH
 		{
 
 			const originalIntersectsRange = intersectsRange;
-			intersectsRange = (offset, count, contained, depth, nodeIndex) =>
+			intersectsRange = (offset: number, count: number, contained: boolean, depth: number, nodeIndex: number) =>
 			{
 
 				if (!originalIntersectsRange(offset, count, contained, depth, nodeIndex))
@@ -594,7 +611,7 @@ export class MeshBVH
 			if (intersectsTriangle)
 			{
 
-				intersectsRange = (offset, count, contained, depth) =>
+				intersectsRange = (offset: number, count: number, contained: boolean, depth: number) =>
 				{
 
 					return iterateOverTriangles(offset, count, geometry, intersectsTriangle, contained, depth, triangle);
@@ -604,7 +621,7 @@ export class MeshBVH
 			} else
 			{
 
-				intersectsRange = (offset, count, contained) =>
+				intersectsRange = (_offset: number, _count: number, contained: boolean) =>
 				{
 
 					return contained;
@@ -732,7 +749,7 @@ export class MeshBVH
 
 			intersectsBounds: box => aabb2.intersectsBox(box),
 
-			intersectsRange: (offset1, count1, contained, depth1, nodeIndex1, box) =>
+			intersectsRange: (offset1, count1, _contained, depth1, nodeIndex1, box) =>
 			{
 
 				aabb.copy(box);
@@ -741,7 +758,7 @@ export class MeshBVH
 
 					intersectsBounds: box => aabb.intersectsBox(box),
 
-					intersectsRange: (offset2, count2, contained, depth2, nodeIndex2) =>
+					intersectsRange: (offset2, count2, _contained, depth2, nodeIndex2) =>
 					{
 
 						return intersectsRanges(offset1, count1, offset2, count2, depth1, nodeIndex1, depth2, nodeIndex2);
@@ -878,7 +895,7 @@ export class MeshBVH
 
 							},
 
-							intersectsBounds: (box, isLeaf, score) =>
+							intersectsBounds: (_box, _isLeaf, score) =>
 							{
 
 								return score < closestDistance && score < maxThreshold;
@@ -1045,7 +1062,7 @@ export class MeshBVH
 
 				},
 
-				intersectsBounds: (box, isLeaf, score) =>
+				intersectsBounds: (_box, _isLeaf, score) =>
 				{
 
 					return score < closestDistanceSq && score < maxThresholdSq;

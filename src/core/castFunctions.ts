@@ -51,7 +51,9 @@ export function raycast(nodeIndex32: number, geometry: BufferGeometry, side: Sid
 
 }
 
-export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray): { point: Vector3, distance: number } | null
+export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray): {
+	face: any; point: Vector3, distance: number
+} | null
 {
 
 	let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array!, uint16Array = _uint16Array!, uint32Array = _uint32Array!;
