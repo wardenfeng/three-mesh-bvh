@@ -4,7 +4,6 @@
 		"noEmit": true,
 		"strict": true,
 		"noUnusedParameters": true,
-		"strictNullChecks": true,
 		"noImplicitAny": true,
 		"lib": [
 			"dom",

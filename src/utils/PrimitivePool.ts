@@ -22,7 +22,7 @@ export class PrimitivePool<T> {
 		} else
 		{
 
-			return primitives.pop();
+			return primitives.pop() as T;
 
 		}
 

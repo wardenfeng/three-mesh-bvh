@@ -40,7 +40,7 @@ function checkIntersection(ray: Ray, pA: Vector3, pB: Vector3, pC: Vector3, poin
 
 }
 
-interface IntersectionType
+export interface IntersectionType
 {
 	faceIndex?: number;
 	face?: { a: number; b: number; c: number; normal: Vector3; materialIndex: number; };
@@ -92,7 +92,7 @@ function checkBufferGeometryIntersection(ray: Ray, position: BufferAttribute | I
 }
 
 // https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L258
-function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, intersections: IntersectionType[])
+function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, intersections?: IntersectionType[])
 {
 
 	const triOffset = tri * 3;

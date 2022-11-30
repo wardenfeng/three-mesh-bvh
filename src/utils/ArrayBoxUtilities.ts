@@ -1,6 +1,6 @@
-import { Box3 } from "three";
+import { Vector3 } from "three";
 
-export function arrayToBox(nodeIndex32: number, array: Float32Array, target: Box3)
+export function arrayToBox(nodeIndex32: number, array: Float32Array, target: { min: Vector3, max: Vector3 })
 {
 
 	target.min.x = array[nodeIndex32];
