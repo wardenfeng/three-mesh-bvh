@@ -1,4 +1,5 @@
-import {
+import
+{
 	DataTexture,
 	FloatType,
 	IntType,
@@ -19,9 +20,11 @@ import {
 	NearestFilter,
 } from 'three';
 
-function countToStringFormat( count ) {
+function countToStringFormat(count: number)
+{
 
-	switch ( count ) {
+	switch (count)
+	{
 
 		case 1: return 'R';
 		case 2: return 'RG';
@@ -34,9 +37,11 @@ function countToStringFormat( count ) {
 
 }
 
-function countToFormat( count ) {
+function countToFormat(count: number)
+{
 
-	switch ( count ) {
+	switch (count)
+	{
 
 		case 1: return RedFormat;
 		case 2: return RGFormat;
@@ -47,9 +52,11 @@ function countToFormat( count ) {
 
 }
 
-function countToIntFormat( count ) {
+function countToIntFormat(count: number)
+{
 
-	switch ( count ) {
+	switch (count)
+	{
 
 		case 1: return RedIntegerFormat;
 		case 2: return RGIntegerFormat;
@@ -60,9 +67,13 @@ function countToIntFormat( count ) {
 
 }
 
-export class VertexAttributeTexture extends DataTexture {
+export class VertexAttributeTexture extends DataTexture
+{
+	overrideItemSize: any;
+	_forcedType: any;
 
-	constructor() {
+	constructor()
+	{
 
 		super();
 		this.minFilter = NearestFilter;
@@ -73,16 +84,19 @@ export class VertexAttributeTexture extends DataTexture {
 
 	}
 
-	updateFrom( attr ) {
+	updateFrom(attr: { itemSize: any; count: number; normalized: boolean; array: { constructor: any; }; getX: (arg0: number) => number; getY: (arg0: number) => number; getZ: (arg0: number) => number; getW: (arg0: number) => number; })
+	{
 
 		const overrideItemSize = this.overrideItemSize;
 		const originalItemSize = attr.itemSize;
 		const originalCount = attr.count;
-		if ( overrideItemSize !== null ) {
+		if (overrideItemSize !== null)
+		{
 
-			if ( ( originalItemSize * originalCount ) % overrideItemSize !== 0.0 ) {
+			if ((originalItemSize * originalCount) % overrideItemSize !== 0.0)
+			{
 
-				throw new Error( 'VertexAttributeTexture: overrideItemSize must divide evenly into buffer length.' );
+				throw new Error('VertexAttributeTexture: overrideItemSize must divide evenly into buffer length.');
 
 			}
 
@@ -100,9 +114,11 @@ export class VertexAttributeTexture extends DataTexture {
 		let finalStride = itemSize;
 
 		// derive the type of texture this should be in the shader
-		if ( targetType === null ) {
+		if (targetType === null)
+		{
 
-			switch ( originalBufferCons ) {
+			switch (originalBufferCons)
+			{
 
 				case Float32Array:
 					targetType = FloatType;
@@ -126,30 +142,35 @@ export class VertexAttributeTexture extends DataTexture {
 
 		// get the target format to store the texture as
 		let type, format, normalizeValue, targetBufferCons;
-		let internalFormat = countToStringFormat( itemSize );
-		switch ( targetType ) {
+		let internalFormat = countToStringFormat(itemSize);
+		switch (targetType)
+		{
 
 			case FloatType:
 				normalizeValue = 1.0;
-				format = countToFormat( itemSize );
+				format = countToFormat(itemSize);
 
-				if ( normalized && byteCount === 1 ) {
+				if (normalized && byteCount === 1)
+				{
 
 					targetBufferCons = originalBufferCons;
 					internalFormat += '8';
 
-					if ( originalBufferCons === Uint8Array ) {
+					if (originalBufferCons === Uint8Array)
+					{
 
 						type = UnsignedByteType;
 
-					} else {
+					} else
+					{
 
 						type = ByteType;
 						internalFormat += '_SNORM';
 
 					}
 
-				} else {
+				} else
+				{
 
 					targetBufferCons = Float32Array;
 					internalFormat += '32F';
@@ -161,20 +182,23 @@ export class VertexAttributeTexture extends DataTexture {
 
 			case IntType:
 				internalFormat += byteCount * 8 + 'I';
-				normalizeValue = normalized ? Math.pow( 2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1 ) : 1.0;
-				format = countToIntFormat( itemSize );
+				normalizeValue = normalized ? Math.pow(2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1) : 1.0;
+				format = countToIntFormat(itemSize);
 
-				if ( byteCount === 1 ) {
+				if (byteCount === 1)
+				{
 
 					targetBufferCons = Int8Array;
 					type = ByteType;
 
-				} else if ( byteCount === 2 ) {
+				} else if (byteCount === 2)
+				{
 
 					targetBufferCons = Int16Array;
 					type = ShortType;
 
-				} else {
+				} else
+				{
 
 					targetBufferCons = Int32Array;
 					type = IntType;
@@ -185,20 +209,23 @@ export class VertexAttributeTexture extends DataTexture {
 
 			case UnsignedIntType:
 				internalFormat += byteCount * 8 + 'UI';
-				normalizeValue = normalized ? Math.pow( 2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1 ) : 1.0;
-				format = countToIntFormat( itemSize );
+				normalizeValue = normalized ? Math.pow(2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1) : 1.0;
+				format = countToIntFormat(itemSize);
 
-				if ( byteCount === 1 ) {
+				if (byteCount === 1)
+				{
 
 					targetBufferCons = Uint8Array;
 					type = UnsignedByteType;
 
-				} else if ( byteCount === 2 ) {
+				} else if (byteCount === 2)
+				{
 
 					targetBufferCons = Uint16Array;
 					type = UnsignedShortType;
 
-				} else {
+				} else
+				{
 
 					targetBufferCons = Uint32Array;
 					type = UnsignedIntType;
@@ -211,46 +238,52 @@ export class VertexAttributeTexture extends DataTexture {
 
 		// there will be a mismatch between format length and final length because
 		// RGBFormat and RGBIntegerFormat was removed
-		if ( finalStride === 3 && ( format === RGBAFormat || format === RGBAIntegerFormat ) ) {
+		if (finalStride === 3 && (format === RGBAFormat || format === RGBAIntegerFormat))
+		{
 
 			finalStride = 4;
 
 		}
 
 		// copy the data over to the new texture array
-		const dimension = Math.ceil( Math.sqrt( count ) );
+		const dimension = Math.ceil(Math.sqrt(count));
 		const length = finalStride * dimension * dimension;
-		const dataArray = new targetBufferCons( length );
+		const dataArray = new targetBufferCons(length);
 
 		// temporarily set the normalized state to false since we have custom normalization logic
 		const originalNormalized = attr.normalized;
 		attr.normalized = false;
-		for ( let i = 0; i < count; i ++ ) {
+		for (let i = 0; i < count; i++)
+		{
 
 			const ii = finalStride * i;
-			dataArray[ ii ] = attr.getX( i ) / normalizeValue;
+			dataArray[ii] = attr.getX(i) / normalizeValue;
 
-			if ( itemSize >= 2 ) {
+			if (itemSize >= 2)
+			{
 
-				dataArray[ ii + 1 ] = attr.getY( i ) / normalizeValue;
+				dataArray[ii + 1] = attr.getY(i) / normalizeValue;
 
 			}
 
-			if ( itemSize >= 3 ) {
+			if (itemSize >= 3)
+			{
 
-				dataArray[ ii + 2 ] = attr.getZ( i ) / normalizeValue;
+				dataArray[ii + 2] = attr.getZ(i) / normalizeValue;
 
-				if ( finalStride === 4 ) {
+				if (finalStride === 4)
+				{
 
-					dataArray[ ii + 3 ] = 1.0;
+					dataArray[ii + 3] = 1.0;
 
 				}
 
 			}
 
-			if ( itemSize >= 4 ) {
+			if (itemSize >= 4)
+			{
 
-				dataArray[ ii + 3 ] = attr.getW( i ) / normalizeValue;
+				dataArray[ii + 3] = attr.getW(i) / normalizeValue;
 
 			}
 
@@ -258,12 +291,12 @@ export class VertexAttributeTexture extends DataTexture {
 
 		attr.normalized = originalNormalized;
 
-		this.internalFormat = internalFormat;
+		this.internalFormat = internalFormat as any;
 		this.format = format;
 		this.type = type;
-		this.image.width = dimension;
-		this.image.height = dimension;
-		this.image.data = dataArray;
+		(this.image as any).width = dimension;
+		(this.image as any).height = dimension;
+		(this.image as any).data = dataArray;
 		this.needsUpdate = true;
 		this.dispose();
 
@@ -274,9 +307,11 @@ export class VertexAttributeTexture extends DataTexture {
 
 }
 
-export class UIntVertexAttributeTexture extends VertexAttributeTexture {
+export class UIntVertexAttributeTexture extends VertexAttributeTexture
+{
 
-	constructor() {
+	constructor()
+	{
 
 		super();
 		this._forcedType = UnsignedIntType;
@@ -285,9 +320,11 @@ export class UIntVertexAttributeTexture extends VertexAttributeTexture {
 
 }
 
-export class IntVertexAttributeTexture extends VertexAttributeTexture {
+export class IntVertexAttributeTexture extends VertexAttributeTexture
+{
 
-	constructor() {
+	constructor()
+	{
 
 		super();
 		this._forcedType = IntType;
@@ -297,9 +334,11 @@ export class IntVertexAttributeTexture extends VertexAttributeTexture {
 
 }
 
-export class FloatVertexAttributeTexture extends VertexAttributeTexture {
+export class FloatVertexAttributeTexture extends VertexAttributeTexture
+{
 
-	constructor() {
+	constructor()
+	{
 
 		super();
 		this._forcedType = FloatType;
