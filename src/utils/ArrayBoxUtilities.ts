@@ -1,7 +1,6 @@
-import { OrientedBox } from "src/math/OrientedBox";
-import { Box3, Vector3 } from "three";
+import { Box3 } from "three";
 
-export function arrayToBox(nodeIndex32: number, array: Float32Array, target: OrientedBox | Box3)
+export function arrayToBox(nodeIndex32: number, array: Float32Array, target: Box3)
 {
 
 	target.min.x = array[nodeIndex32];
