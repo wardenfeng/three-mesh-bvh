@@ -1,4 +1,4 @@
-import { Ray, Matrix4, Mesh } from 'three';
+import { Ray, Matrix4, Mesh, Raycaster, Event, Intersection, Object3D } from 'three';
 import { convertRaycastIntersect } from './GeometryRayIntersectUtilities';
 import { MeshBVH } from '../core/MeshBVH';
 
@@ -6,7 +6,7 @@ const ray = /* @__PURE__ */ new Ray();
 const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
 const origMeshRaycastFunc = Mesh.prototype.raycast;
 
-export function acceleratedRaycast(this: Mesh, raycaster, intersects)
+export function acceleratedRaycast(this: Mesh, raycaster: Raycaster, intersects: Intersection<Object3D<Event>>[])
 {
 
 	if (this.geometry.boundsTree)
@@ -57,7 +57,7 @@ export function acceleratedRaycast(this: Mesh, raycaster, intersects)
 
 }
 
-export function computeBoundsTree(options)
+export function computeBoundsTree(options: { setBoundingBox?: boolean; useSharedArrayBuffer?: boolean; })
 {
 
 	this.boundsTree = new MeshBVH(this, options);

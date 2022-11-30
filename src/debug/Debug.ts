@@ -52,7 +52,7 @@ function getRootExtremes(bvh: MeshBVH, group: number)
 		surfaceAreaScore: 0,
 	};
 
-	bvh.traverse((depth: number, isLeaf: boolean, boundingData: number[], offsetOrSplit: number, count: number) =>
+	bvh.traverse((depth: number, isLeaf: boolean, boundingData, offsetOrSplit: number, count: number) =>
 	{
 
 		const l0 = boundingData[0 + 3] - boundingData[0];

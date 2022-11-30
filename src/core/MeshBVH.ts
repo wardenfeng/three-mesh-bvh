@@ -379,7 +379,7 @@ export class MeshBVH
 
 	}
 
-	traverse(callback: (depth: number, isLeaf: boolean, data: Float32Array, offset: number, count?: number) => boolean, rootIndex = 0)
+	traverse(callback: (depth: number, isLeaf: boolean, data: Float32Array, offset: number, count?: number) => boolean | void, rootIndex = 0)
 	{
 
 		const buffer = this._roots[rootIndex];

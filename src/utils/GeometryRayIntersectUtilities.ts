@@ -17,7 +17,7 @@ export function intersectClosestTri(geo: BufferGeometry, side: Side, ray: Ray, o
 {
 
 	let dist = Infinity;
-	let res = null;
+	let res: IntersectionType = null;
 	for (let i = offset, end = offset + count; i < end; i++)
 	{
 
