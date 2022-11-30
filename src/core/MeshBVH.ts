@@ -653,8 +653,8 @@ export class MeshBVH
 
 	bvhcast(otherBvh: MeshBVH, matrixToLocal: Matrix4,
 		callbacks: {
-			intersectsRanges: (offset1: number, count1: number, offset2: number, count2: number, depth1: number, nodeIndex1: number, depth2: number, nodeIndex2: number) => boolean;
-			intersectsTriangles: (triangle: Triangle, triangle2: Triangle, i1: number, i2: number, depth1: number, index1: number, depth2: number, index2: number) => boolean;
+			intersectsRanges?: (offset1: number, count1: number, offset2: number, count2: number, depth1: number, nodeIndex1: number, depth2: number, nodeIndex2: number) => boolean;
+			intersectsTriangles?: (triangle: Triangle, triangle2: Triangle, i1: number, i2: number, depth1: number, index1: number, depth2: number, index2: number) => boolean;
 		})
 	{
 
