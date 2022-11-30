@@ -866,9 +866,9 @@ export function buildPackedTree(geo: BufferGeometry, options: { useSharedArrayBu
 	// splitAxis / isLeaf + count 	: 1 uint32 / 2 uint16
 	const roots = buildTree(geo, options as any);
 
-	let float32Array;
-	let uint32Array;
-	let uint16Array;
+	let float32Array: Float32Array;
+	let uint32Array: Uint32Array;
+	let uint16Array: Uint16Array;
 	const packedRoots: ArrayBuffer[] = [];
 	const BufferConstructor = options.useSharedArrayBuffer ? SharedArrayBuffer : ArrayBuffer;
 	for (let i = 0; i < roots.length; i++)

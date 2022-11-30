@@ -1,5 +1,5 @@
 
-import { ExtendedTriangle } from 'src';
+import { ExtendedTriangle } from 'src/math/ExtendedTriangle';
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Triangle, Vector2, Vector3 } from 'three';
 
 // sets the vertices of triangle `tri` with the 3 vertices after i

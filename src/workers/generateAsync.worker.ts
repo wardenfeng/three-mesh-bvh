@@ -1,25 +1,42 @@
-import {
+import
+{
 	BufferGeometry,
 	BufferAttribute,
 } from 'three';
 import { MeshBVH } from '../core/MeshBVH';
 
-onmessage = function ( { data } ) {
+onmessage = function ({ data }: {
+	data: {
+		position: Float32Array, index: Float32Array,
+		options: {
+			onProgress: (progress: number) => void;
+			includedProgressCallback: boolean;
+			groups: {
+				count: number;
+				start: number;
+				materialIndex: number;
+			}[]
+		}
+	}
+})
+{
 
 	let prevTime = performance.now();
-	function onProgressCallback( progress ) {
+	function onProgressCallback(progress: number)
+	{
 
 		const currTime = performance.now();
-		if ( currTime - prevTime >= 10 || progress === 1.0 ) {
+		if (currTime - prevTime >= 10 || progress === 1.0)
+		{
 
-			postMessage( {
+			postMessage({
 
 				error: null,
 				serialized: null,
 				position: null,
 				progress,
 
-			} );
+			});
 			prevTime = currTime;
 
 		}
@@ -27,56 +44,62 @@ onmessage = function ( { data } ) {
 	}
 
 	const { index, position, options } = data;
-	try {
+	try
+	{
 
 		const geometry = new BufferGeometry();
-		geometry.setAttribute( 'position', new BufferAttribute( position, 3, false ) );
-		if ( index ) {
+		geometry.setAttribute('position', new BufferAttribute(position, 3, false));
+		if (index)
+		{
 
-			geometry.setIndex( new BufferAttribute( index, 1, false ) );
+			geometry.setIndex(new BufferAttribute(index, 1, false));
 
 		}
 
-		if ( options.includedProgressCallback ) {
+		if (options.includedProgressCallback)
+		{
 
 			options.onProgress = onProgressCallback;
 
 		}
 
-		if ( options.groups ) {
+		if (options.groups)
+		{
 
 			const groups = options.groups;
-			for ( const i in groups ) {
+			for (const i in groups)
+			{
 
-				const group = groups[ i ];
-				geometry.addGroup( group.start, group.count, group.materialIndex );
+				const group = groups[i];
+				geometry.addGroup(group.start, group.count, group.materialIndex);
 
 			}
 
 		}
 
-		const bvh = new MeshBVH( geometry, options );
-		const serialized = MeshBVH.serialize( bvh, { copyIndexBuffer: false } );
+		const bvh = new MeshBVH(geometry, options);
+		const serialized = MeshBVH.serialize(bvh, { copyIndexBuffer: false });
 
-		postMessage( {
+		postMessage({
 
 			error: null,
 			serialized,
 			position,
 			progress: 1,
 
-		}, [ serialized.index.buffer, position.buffer, ...serialized.roots ] );
+		}, [serialized.index.buffer, position.buffer, ...serialized.roots] as any);
 
-	} catch ( error ) {
+	} catch (error)
+	{
 
-		postMessage( {
+		postMessage({
 
 			error,
 			serialized: null,
 			position: null,
 			progress: 1,
 
-		} );
+		});
 
 	}
 

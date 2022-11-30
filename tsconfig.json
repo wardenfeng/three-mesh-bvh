@@ -3,6 +3,7 @@
 		"target": "ES5",
 		"baseUrl": ".",
 		"noEmit": true,
+		"module": "ES2020",
 		"noUnusedParameters": true,
 		"noImplicitAny": true,
 		"lib": [

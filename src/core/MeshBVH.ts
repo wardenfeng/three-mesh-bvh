@@ -26,13 +26,13 @@ const trianglePool = /* @__PURE__ */ new PrimitivePool(() => new ExtendedTriangl
 
 export class MeshBVH
 {
-	_roots: ArrayBuffer[];
+	_roots: Float32Array[];
 	geometry: BufferGeometry;
 
-	static serialize(bvh: { geometry: BufferGeometry, _roots: [][] },
-		options: { isBufferGeometry?: boolean, cloneBuffers?: boolean } = {}):
+	static serialize(bvh: MeshBVH,
+		options: { copyIndexBuffer?: boolean, isBufferGeometry?: boolean, cloneBuffers?: boolean } = {}):
 		{
-			roots: never[][];
+			roots: ArrayBuffer[];
 			index: Float32Array;
 		}
 	{
@@ -59,7 +59,10 @@ export class MeshBVH
 		const geometry = bvh.geometry;
 		const rootData = bvh._roots;
 		const indexAttribute = geometry.getIndex();
-		let result;
+		let result: {
+			roots: Float32Array[];
+			index: Float32Array;
+		};
 		if (options.cloneBuffers)
 		{
 
@@ -82,7 +85,7 @@ export class MeshBVH
 
 	}
 
-	static deserialize(data: { index: Float32Array, roots: ArrayBuffer[] }, geometry: BufferGeometry,
+	static deserialize(data: { index: Float32Array, roots: Float32Array[] }, geometry: BufferGeometry,
 		options: { setIndex?: boolean } = {}): MeshBVH
 	{
 
@@ -182,7 +185,7 @@ export class MeshBVH
 		if (!options[SKIP_GENERATION])
 		{
 
-			this._roots = buildPackedTree(geometry, options);
+			this._roots = buildPackedTree(geometry, options) as any;
 
 			if (!geometry.boundingBox && options.setBoundingBox)
 			{
