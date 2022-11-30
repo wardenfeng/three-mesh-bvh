@@ -1,22 +1,13 @@
-import { Vector3, BufferAttribute, Box3, FrontSide, Matrix4, BufferGeometry, InterleavedBufferAttribute, Ray, Triangle } from 'three';
-import { CENTER, BYTES_PER_NODE, IS_LEAFNODE_FLAG } from './Constants';
-import { buildPackedTree } from './buildFunctions';
-import
-{
-	raycast,
-	raycastFirst,
-	shapecast,
-	intersectsGeometry,
-	setBuffer,
-	clearBuffer,
-} from './castFunctions';
-import { OrientedBox } from '../math/OrientedBox';
-import { ExtendedTriangle } from '../math/ExtendedTriangle';
-import { PrimitivePool } from '../utils/PrimitivePool';
-import { arrayToBox } from '../utils/ArrayBoxUtilities';
-import { iterateOverTriangles, setTriangle } from '../utils/TriangleUtilities';
-import { MeshBVHNode } from './MeshBVHNode';
 import { IntersectionType } from 'src/utils/ThreeRayIntersectUtilities';
+import { Box3, BufferAttribute, BufferGeometry, FrontSide, InterleavedBufferAttribute, Matrix4, Ray, Sphere, Triangle, Vector3 } from 'three';
+import { ExtendedTriangle } from '../math/ExtendedTriangle';
+import { OrientedBox } from '../math/OrientedBox';
+import { arrayToBox } from '../utils/ArrayBoxUtilities';
+import { PrimitivePool } from '../utils/PrimitivePool';
+import { iterateOverTriangles, setTriangle } from '../utils/TriangleUtilities';
+import { buildPackedTree } from './buildFunctions';
+import { clearBuffer, intersectsGeometry, raycast, raycastFirst, setBuffer, shapecast } from './castFunctions';
+import { BYTES_PER_NODE, CENTER, IS_LEAFNODE_FLAG } from './Constants';
 
 const SKIP_GENERATION = Symbol('skip tree generation');
 
@@ -539,10 +530,12 @@ export class MeshBVH
 
 	// shapecast(callbacks, _intersectsTriangleFunc: (tri: Triangle, index: number, contained: boolean, depth: number) => void, _orderNodesFunc)
 	shapecast(callbacks: {
-		intersectsBounds: any; intersectsRange?: any;
-		intersectsTriangle?: (tri: Triangle, index: number, contained: boolean, depth: number) => any; boundsTraverseOrder?: any;
-	},
-		_intersectsTriangleFunc: (tri: Triangle, index: number, index1: number, index2: number, contained: boolean, depth: number) => any, _orderNodesFunc: undefined)
+		intersectsBounds: (box: Box3, isLeaf: boolean, score: number) => boolean; intersectsRange?: any;
+		intersectsTriangle?: (tri: ExtendedTriangle, index: number, contained: boolean, depth: number) => any;
+		boundsTraverseOrder?: (box: Box3) => number;
+	} | ((box: Box3, isLeaf: boolean, score: number) => boolean),
+		_intersectsTriangleFunc?: (tri: Triangle, index: number, index1: number, index2: number, contained: boolean, depth: number) => any,
+		_orderNodesFunc?: undefined)
 	{
 
 		const geometry = this.geometry;
@@ -658,7 +651,11 @@ export class MeshBVH
 
 	}
 
-	bvhcast(otherBvh, matrixToLocal, callbacks)
+	bvhcast(otherBvh: MeshBVH, matrixToLocal: Matrix4,
+		callbacks: {
+			intersectsRanges: (offset1: number, count1: number, offset2: number, count2: number, depth1: number, nodeIndex1: number, depth2: number, nodeIndex2: number) => boolean;
+			intersectsTriangles: (triangle: Triangle, triangle2: Triangle, i1: number, i2: number, depth1: number, index1: number, depth2: number, index2: number) => boolean;
+		})
 	{
 
 		// BVHCast function for intersecting two BVHs against each other. Ultimately just uses two recursive shapecast calls rather
@@ -682,8 +679,8 @@ export class MeshBVH
 
 		if (intersectsTriangles)
 		{
-
-			function iterateOverDoubleTriangles(offset1, count1, offset2, count2, depth1, index1, depth2, index2)
+			// @ts-ignore
+			function iterateOverDoubleTriangles(offset1: number, count1: number, offset2: number, count2: number, depth1: number, index1: number, depth2: number, index2: number)
 			{
 
 				for (let i2 = offset2, l2 = offset2 + count2; i2 < l2; i2++)
@@ -720,7 +717,7 @@ export class MeshBVH
 			{
 
 				const originalIntersectsRanges = intersectsRanges;
-				intersectsRanges = function (offset1, count1, offset2, count2, depth1, index1, depth2, index2)
+				intersectsRanges = function (offset1: number, count1: number, offset2: number, count2: number, depth1: number, index1: number, depth2: number, index2: number)
 				{
 
 					if (!originalIntersectsRanges(offset1, count1, offset2, count2, depth1, index1, depth2, index2))
@@ -749,7 +746,7 @@ export class MeshBVH
 
 			intersectsBounds: box => aabb2.intersectsBox(box),
 
-			intersectsRange: (offset1, count1, _contained, depth1, nodeIndex1, box) =>
+			intersectsRange: (offset1: number, count1: number, _contained: boolean, depth1: number, nodeIndex1: number, box: Box3) =>
 			{
 
 				aabb.copy(box);
@@ -758,7 +755,7 @@ export class MeshBVH
 
 					intersectsBounds: box => aabb.intersectsBox(box),
 
-					intersectsRange: (offset2, count2, _contained, depth2, nodeIndex2) =>
+					intersectsRange: (offset2: number, count2: number, _contained: boolean, depth2: number, nodeIndex2: number) =>
 					{
 
 						return intersectsRanges(offset1, count1, offset2, count2, depth1, nodeIndex1, depth2, nodeIndex2);
@@ -778,7 +775,7 @@ export class MeshBVH
 	}
 
 	/* Derived Cast Functions */
-	intersectsBox(box, boxToMesh)
+	intersectsBox(box: Box3, boxToMesh: Matrix4)
 	{
 
 		obb.set(box.min, box.max, boxToMesh);
@@ -793,7 +790,7 @@ export class MeshBVH
 
 	}
 
-	intersectsSphere(sphere)
+	intersectsSphere(sphere: Sphere)
 	{
 
 		return this.shapecast(
@@ -805,7 +802,10 @@ export class MeshBVH
 
 	}
 
-	closestPointToGeometry(otherGeometry, geometryToBvh, target1 = {}, target2 = {}, minThreshold = 0, maxThreshold = Infinity)
+	closestPointToGeometry(otherGeometry: BufferGeometry, geometryToBvh: Matrix4,
+		target1: { faceIndex?: number; distance?: number; point?: Vector3 } = {},
+		target2: { faceIndex?: number; distance?: number; point?: Vector3 } = {},
+		minThreshold = 0, maxThreshold = Infinity)
 	{
 
 		if (!otherGeometry.boundingBox)
@@ -828,8 +828,8 @@ export class MeshBVH
 
 		let tempTarget1 = temp1;
 		let tempTargetDest1 = temp2;
-		let tempTarget2 = null;
-		let tempTargetDest2 = null;
+		let tempTarget2: Vector3 = null;
+		let tempTargetDest2: Vector3 = null;
 
 		if (target2)
 		{
@@ -847,14 +847,14 @@ export class MeshBVH
 		this.shapecast(
 			{
 
-				boundsTraverseOrder: box =>
+				boundsTraverseOrder: (box: Box3) =>
 				{
 
 					return obb.distanceToBox(box);
 
 				},
 
-				intersectsBounds: (box, isLeaf, score) =>
+				intersectsBounds: (box: Box3, isLeaf: boolean, score: number) =>
 				{
 
 					if (score < closestDistance && score < maxThreshold)
@@ -879,7 +879,7 @@ export class MeshBVH
 
 				},
 
-				intersectsRange: (offset, count) =>
+				intersectsRange: (offset: number, count: number) =>
 				{
 
 					if (otherGeometry.boundsTree)
@@ -888,21 +888,21 @@ export class MeshBVH
 						// if the other geometry has a bvh then use the accelerated path where we use shapecast to find
 						// the closest bounds in the other geometry to check.
 						return otherGeometry.boundsTree.shapecast({
-							boundsTraverseOrder: box =>
+							boundsTraverseOrder: (box: Box3) =>
 							{
 
 								return obb2.distanceToBox(box);
 
 							},
 
-							intersectsBounds: (_box, _isLeaf, score) =>
+							intersectsBounds: (_box: Box3, _isLeaf: boolean, score: number) =>
 							{
 
 								return score < closestDistance && score < maxThreshold;
 
 							},
 
-							intersectsRange: (otherOffset, otherCount) =>
+							intersectsRange: (otherOffset: number, otherCount: number) =>
 							{
 
 								for (let i2 = otherOffset * 3, l2 = (otherOffset + otherCount) * 3; i2 < l2; i2 += 3)
@@ -1039,7 +1039,9 @@ export class MeshBVH
 
 	}
 
-	closestPointToPoint(point, target = {}, minThreshold = 0, maxThreshold = Infinity)
+	closestPointToPoint(point: Vector3,
+		target: { distance?: number; faceIndex?: number; point?: Vector3 } = {},
+		minThreshold = 0, maxThreshold = Infinity)
 	{
 
 		// early out if under minThreshold
@@ -1054,7 +1056,7 @@ export class MeshBVH
 
 			{
 
-				boundsTraverseOrder: box =>
+				boundsTraverseOrder: (box: Box3) =>
 				{
 
 					temp.copy(point).clamp(box.min, box.max);
@@ -1114,7 +1116,7 @@ export class MeshBVH
 
 	}
 
-	getBoundingBox(target)
+	getBoundingBox(target: Box3)
 	{
 
 		target.makeEmpty();

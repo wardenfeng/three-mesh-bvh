@@ -83,7 +83,7 @@ export class MeshBVH {
   // https://stackoverflow.com/a/60617060/9838891
   shapecast(
     callbacks: {
-
+			boundsTraverseOrder: (box: Box3) => number
       intersectsBounds: (
         box: Box3,
         isLeaf: boolean,
