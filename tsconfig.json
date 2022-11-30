@@ -6,6 +6,7 @@
 		"module": "ES2020",
 		"noUnusedParameters": true,
 		"noImplicitAny": true,
+		"skipLibCheck": true,
 		"lib": [
 			"dom",
 			"es2015",
