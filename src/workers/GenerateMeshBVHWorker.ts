@@ -10,7 +10,7 @@ export class GenerateMeshBVHWorker
 	{
 
 		this.running = false;
-		this.worker = new Worker(new URL('./generateAsync.worker.js', import.meta.url), { type: 'module' });
+		this.worker = new Worker(new URL('./generateAsync.worker.ts', import.meta.url), { type: 'module' });
 		this.worker.onerror = e =>
 		{
 
