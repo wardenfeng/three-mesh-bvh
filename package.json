@@ -8,7 +8,9 @@
   "types": "src/index.d.ts",
   "sideEffects": false,
   "scripts": {
-    "dev": "vite example"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "files": [
     "src/*",
@@ -49,10 +51,10 @@
   },
   "devDependencies": {
     "@types/three": "^0.146.0",
-    "stats.js": "^0.17.0",
     "three": "^0.146.0",
-    "simplex-noise": "^2.4.0",
-		"typescript": "4.3.5",
-    "vite": "^3.0.7"
-  }
+		"typescript": "4.3.5"
+  },
+	"workspaces":[
+		"examples"
+	]
 }
