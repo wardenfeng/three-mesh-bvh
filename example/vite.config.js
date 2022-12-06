@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import fs from 'fs';
 
 export default defineConfig({
+	publicDir:'assets',
 	build: {
 		rollupOptions: {
 			input: getHtmlNamesObject(),

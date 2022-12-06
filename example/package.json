@@ -3,13 +3,15 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"clean": "rimraf dist"
 	},
 	"dependencies": {
 		"stats.js": "^0.17.0",
 		"simplex-noise": "^2.4.0"
 	},
 	"devDependencies": {
-		"vite": "^3.0.7"
+		"vite": "^3.0.7",
+		"rimraf": "3.0.2"
 	}
 }
