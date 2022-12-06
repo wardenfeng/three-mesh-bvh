@@ -1,58 +1,53 @@
 {
-  "name": "three-mesh-bvh",
-  "version": "0.5.19",
-  "description": "A BVH implementation to speed up raycasting against three.js meshes.",
-  "module": "src/index.js",
-  "main": "build/index.umd.cjs",
-  "type": "module",
-  "types": "src/index.d.ts",
-  "sideEffects": false,
-  "scripts": {
-    "dev": "vite example"
-  },
-  "files": [
-    "src/*",
-    "build/*"
-  ],
-  "keywords": [
-    "graphics",
-    "raycast",
-    "tree",
-    "bounds",
-    "threejs",
-    "three-js",
-    "bounds-hierarchy",
-    "performance",
-    "raytracing",
-    "pathtracing",
-    "geometry",
-    "mesh",
-    "distance",
-    "intersection",
-    "acceleration",
-    "bvh",
-    "webvr",
-    "webxr"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gkjohnson/three-mesh-bvh.git"
-  },
-  "author": "Garrett Johnson <garrett.kjohnson@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/gkjohnson/three-mesh-bvh/issues"
-  },
-  "homepage": "https://github.com/gkjohnson/three-mesh-bvh#readme",
-  "peerDependencies": {
-    "three": ">= 0.123.0"
-  },
-  "devDependencies": {
-    "@types/three": "^0.146.0",
-    "stats.js": "^0.17.0",
-    "three": "^0.146.0",
-    "simplex-noise": "^2.4.0",
-		"typescript": "4.3.5",
-    "vite": "^3.0.7"
-  }
+	"name": "three-mesh-bvh",
+	"version": "0.5.19",
+	"description": "A BVH implementation to speed up raycasting against three.js meshes.",
+	"module": "src/index.js",
+	"main": "build/index.umd.cjs",
+	"type": "module",
+	"types": "src/index.d.ts",
+	"sideEffects": false,
+	"scripts": {},
+	"files": [
+		"src/*",
+		"build/*"
+	],
+	"keywords": [
+		"graphics",
+		"raycast",
+		"tree",
+		"bounds",
+		"threejs",
+		"three-js",
+		"bounds-hierarchy",
+		"performance",
+		"raytracing",
+		"pathtracing",
+		"geometry",
+		"mesh",
+		"distance",
+		"intersection",
+		"acceleration",
+		"bvh",
+		"webvr",
+		"webxr"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gkjohnson/three-mesh-bvh.git"
+	},
+	"author": "Garrett Johnson <garrett.kjohnson@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/gkjohnson/three-mesh-bvh/issues"
+	},
+	"homepage": "https://github.com/gkjohnson/three-mesh-bvh#readme",
+	"peerDependencies": {
+		"three": ">= 0.123.0"
+	},
+	"devDependencies": {
+		"@types/three": "^0.146.0",
+		"three": "^0.146.0",
+		"typescript": "4.3.5"
+	}
 }
