@@ -34,9 +34,9 @@ const params = {
 };
 
 let renderer, camera, scene, clock, gui, stats;
-let environment, collider, visualizer;
-const spheres = [];
-const hits = [];
+let environment:THREE.Group, collider, visualizer;
+const spheres:CMesh[] = [];
+const hits:CMesh[] = [];
 const tempSphere = new THREE.Sphere();
 const deltaVec = new THREE.Vector3();
 const tempVec = new THREE.Vector3();
@@ -150,8 +150,8 @@ function init() {
 
 		const sphere = createSphere();
 		sphere.position.copy( camera.position ).addScaledVector( raycaster.ray.direction, 3 );
-		sphere
-			.velocity
+		((sphere as any)
+			.velocity as THREE. Vector3)
 			.set( Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5 )
 			.addScaledVector( raycaster.ray.direction, 10 * Math.random() + 15 )
 			.multiplyScalar( 0.5 );
@@ -167,7 +167,7 @@ function init() {
 
 	}, false );
 
-	window.createSphere = createSphere;
+	(window as any).createSphere = createSphere;
 
 }
 
@@ -195,13 +195,13 @@ function loadColliderEnvironment() {
 		environment.add( porchLight );
 
 		// collect all geometries to merge
-		const geometries = [];
+		const geometries:THREE.BufferGeometry[] = [];
 		environment.updateMatrixWorld( true );
 		environment.traverse( c => {
 
-			if ( c.geometry ) {
+			if ( (c as THREE.Mesh) .geometry ) {
 
-				const cloned = c.geometry.clone();
+				const cloned = (c as THREE.Mesh) .geometry.clone();
 				cloned.applyMatrix4( c.matrixWorld );
 				for ( const key in cloned.attributes ) {
 
@@ -235,11 +235,11 @@ function loadColliderEnvironment() {
 
 		environment.traverse( c => {
 
-			if ( c.material ) {
+			if ( (c as THREE.Mesh) .material ) {
 
 				c.castShadow = true;
 				c.receiveShadow = true;
-				c.material.shadowSide = 2;
+				((c as THREE.Mesh) .material as THREE.Material) .shadowSide = 2;
 
 			}
 
@@ -264,10 +264,10 @@ function onCollide( object1, object2, point, normal, velocity, offset = 0 ) {
 			object1.collider.radius,
 		0.4
 	) * 2.0;
-	const plane = new THREE.Mesh(
-		new THREE.RingBufferGeometry( 0, 1, 30 ),
+	const plane:CMesh = new THREE.Mesh(
+		new THREE.RingGeometry( 0, 1, 30 ),
 		new THREE.MeshBasicMaterial( { side: 2, transparent: true, depthWrite: false } )
-	);
+	) as any;
 	plane.lifetime = 0;
 	plane.maxLifetime = 0.4;
 	plane.maxScale = effectScale * Math.max( Math.sin( Math.min( velocity / 200, 1 ) * Math.PI / 2 ), 0.35 );
@@ -283,14 +283,14 @@ function createSphere() {
 
 	const white = new THREE.Color( 0xffffff );
 	const color = new THREE.Color( 0x263238 / 2 ).lerp( white, Math.random() * 0.5 + 0.5 ).convertSRGBToLinear();
-	const sphere = new THREE.Mesh(
+	const sphere:CMesh = new THREE.Mesh(
 		new THREE.SphereGeometry( 1, 20, 20 ),
 		new THREE.MeshStandardMaterial( { color } )
-	);
+	) as any;
 	scene.add( sphere );
 	sphere.castShadow = true;
 	sphere.receiveShadow = true;
-	sphere.material.shadowSide = 2;
+	(sphere.material as THREE.Material).shadowSide = 2;
 
 	const radius = 0.5 * params.sphereSize * ( Math.random() * .2 + 0.6 );
 	sphere.scale.setScalar( radius );
@@ -323,7 +323,7 @@ function updateSphereCollisions( deltaTime ) {
 			i --;
 			l --;
 
-			sphere.material.dispose();
+			(sphere.material as THREE.Material) .dispose();
 			sphere.geometry.dispose();
 			scene.remove( sphere );
 			continue;
@@ -484,7 +484,7 @@ function reset() {
 
 	spheres.forEach( s => {
 
-		s.material.dispose();
+		(s.material as THREE.Material) .dispose();
 		s.geometry.dispose();
 		scene.remove( s );
 
@@ -493,7 +493,7 @@ function reset() {
 
 	hits.forEach( h => {
 
-		h.material.dispose();
+		(h.material as THREE.Material) .dispose();
 		h.geometry.dispose();
 		scene.remove( h );
 
@@ -540,14 +540,14 @@ function update( delta ) {
 		let scale = Math.sin( ratio * 4.5 * Math.PI / 4 );
 		scale = 1.0 - Math.pow( 1.0 - scale, 2 );
 		hit.scale.setScalar( scale * hit.maxScale );
-		hit.material.opacity = 1.0 - Math.sin( ratio * 2 * Math.PI / 4 );
+		(hit.material as any).opacity = 1.0 - Math.sin( ratio * 2 * Math.PI / 4 );
 
 		if ( ratio >= 1 ) {
 
 			hits.splice( i, 1 );
-			hit.parent.remove( hit );
+			hit.parent!.remove( hit );
 			hit.geometry.dispose();
-			hit.material.dispose();
+			(hit.material as THREE.Material) .dispose();
 			i --;
 			l --;
 
@@ -580,3 +580,13 @@ function render() {
 	renderer.render( scene, camera );
 
 }
+
+
+type CMesh = THREE.Mesh & {
+	collider:THREE.Sphere
+	velocity :THREE.Vector3
+	mass:number
+	lifetime:number
+	maxLifetime:number
+	maxScale:number
+};
