@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
-import { MeshBVH } from '..';
+import { MeshBVH } from '../src';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { GenerateMeshBVHWorker } from '../src/workers/GenerateMeshBVHWorker';
@@ -79,7 +79,7 @@ function init() {
 	} );
 
 	// load the model
-	new GLTFLoader().setMeshoptDecoder( MeshoptDecoder ).load( 'https://raw.githubusercontent.com/gkjohnson/3d-demo-data/main/models/happy-buddha/buddha.glb', gltf => {
+	new GLTFLoader().setMeshoptDecoder( MeshoptDecoder ).load( './assets/models/happy-buddha/buddha.glb', gltf => {
 
 		const model = gltf.scene.children[ 0 ];
 		model.geometry.center();
@@ -102,7 +102,7 @@ function init() {
 
 	} );
 
-	new GLTFLoader().setMeshoptDecoder( MeshoptDecoder ).load( 'https://raw.githubusercontent.com/gkjohnson/3d-demo-data/main/models/stanford-bunny/bunny.glb', gltf => {
+	new GLTFLoader().setMeshoptDecoder( MeshoptDecoder ).load( './assets/models/stanford-bunny/bunny.glb', gltf => {
 
 		const model = gltf.scene.children[ 0 ];
 		model.geometry.center();
