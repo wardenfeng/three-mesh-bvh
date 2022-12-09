@@ -36,7 +36,7 @@ onmessage = function ({ data }: {
 				position: null,
 				progress,
 
-			});
+			},undefined);
 			prevTime = currTime;
 
 		}
@@ -77,7 +77,7 @@ onmessage = function ({ data }: {
 
 		}
 
-		const bvh = new MeshBVH(geometry, options);
+		const bvh = new MeshBVH(geometry, options as any);
 		const serialized = MeshBVH.serialize(bvh, { copyIndexBuffer: false });
 
 		postMessage({
@@ -99,7 +99,7 @@ onmessage = function ({ data }: {
 			position: null,
 			progress: 1,
 
-		});
+		},undefined);
 
 	}
 

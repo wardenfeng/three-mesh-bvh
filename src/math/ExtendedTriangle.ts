@@ -491,7 +491,7 @@ ExtendedTriangle.prototype.distanceToTriangle = (function ()
 	const line1 = new Line3();
 	const line2 = new Line3();
 
-	return function distanceToTriangle(this: ExtendedTriangle, other, target1: Vector3 | null = null, target2: Vector3 | null = null)
+	return function distanceToTriangle(this: ExtendedTriangle, other: ExtendedTriangle, target1: Vector3 | null = null, target2: Vector3 | null = null)
 	{
 
 		const lineTarget = target1 || target2 ? line1 : null;

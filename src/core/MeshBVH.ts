@@ -1,5 +1,4 @@
-import { IntersectionType } from 'src/utils/ThreeRayIntersectUtilities';
-import { Box3, BufferAttribute, BufferGeometry, FrontSide, InterleavedBufferAttribute, Matrix4, Ray, Sphere, Triangle, Vector3 } from 'three';
+import { Box3, BufferAttribute, BufferGeometry, FrontSide, InterleavedBufferAttribute, Intersection, Material, Matrix4, Object3D, Ray, Side, Sphere, Triangle, Vector3 } from 'three';
 import { ExtendedTriangle } from '../math/ExtendedTriangle';
 import { OrientedBox } from '../math/OrientedBox';
 import { arrayToBox } from '../utils/ArrayBoxUtilities';
@@ -110,6 +109,7 @@ export class MeshBVH
 		};
 
 		const { index, roots } = data;
+		// @ts-ignore
 		const bvh = new MeshBVH(geometry, { ...options, [SKIP_GENERATION]: true });
 		bvh._roots = roots;
 
@@ -140,7 +140,6 @@ export class MeshBVH
 	constructor(geometry: BufferGeometry,
 		options: {
 			setBoundingBox?: boolean; useSharedArrayBuffer?: boolean,
-			[key: symbol]: boolean
 		} = {})
 	{
 
@@ -182,6 +181,7 @@ export class MeshBVH
 		}
 
 		this._roots = null;
+		// @ts-ignore
 		if (!options[SKIP_GENERATION])
 		{
 
@@ -426,21 +426,21 @@ export class MeshBVH
 	}
 
 	/* Core Cast Functions */
-	raycast(ray: Ray, materialOrSide: { isMaterial: boolean, side: any } = FrontSide as any)
+	raycast(ray: Ray, materialOrSide: Material)
 	{
 
 		const roots = this._roots;
 		const geometry = this.geometry;
-		const intersects: IntersectionType[] = [];
+		const intersects: Intersection<Object3D>[] = [];
 		const isMaterial = materialOrSide.isMaterial;
 		const isArrayMaterial = Array.isArray(materialOrSide);
 
 		const groups = geometry.groups;
-		const side = isMaterial ? materialOrSide.side : materialOrSide;
+		const side = isMaterial ? materialOrSide.side : materialOrSide as any as Side;
 		for (let i = 0, l = roots.length; i < l; i++)
 		{
 
-			const materialSide = isArrayMaterial ? materialOrSide[groups[i].materialIndex].side : side;
+			const materialSide = isArrayMaterial ? (materialOrSide as any as Material[])[groups[i].materialIndex].side : side;
 			const startCount = intersects.length;
 
 			setBuffer(roots[i]);
@@ -466,7 +466,7 @@ export class MeshBVH
 
 	}
 
-	raycastFirst(ray: Ray, materialOrSide: { isMaterial: boolean, side: any } = FrontSide as any)
+	raycastFirst(ray: Ray, materialOrSide: Material)
 	{
 
 		const roots = this._roots;
@@ -474,14 +474,14 @@ export class MeshBVH
 		const isMaterial = materialOrSide.isMaterial;
 		const isArrayMaterial = Array.isArray(materialOrSide);
 
-		let closestResult = null;
+		let closestResult: Intersection<Object3D> = null;
 
 		const groups = geometry.groups;
-		const side = isMaterial ? materialOrSide.side : materialOrSide;
+		const side = isMaterial ? materialOrSide.side : materialOrSide as any as Side;
 		for (let i = 0, l = roots.length; i < l; i++)
 		{
 
-			const materialSide = isArrayMaterial ? materialOrSide[groups[i].materialIndex].side : side;
+			const materialSide: Side = isArrayMaterial ? (materialOrSide as any as Material[])[groups[i].materialIndex].side : side;
 
 			setBuffer(roots[i]);
 			const result = raycastFirst(0, geometry, materialSide, ray);

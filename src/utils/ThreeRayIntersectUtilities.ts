@@ -1,4 +1,4 @@
-import { Vector3, Vector2, Triangle, DoubleSide, BackSide, Ray, Side, BufferAttribute, InterleavedBufferAttribute, BufferGeometry } from 'three';
+import { Vector3, Vector2, Triangle, DoubleSide, BackSide, Ray, Side, BufferAttribute, InterleavedBufferAttribute, BufferGeometry, Object3D, Intersection } from 'three';
 
 // Ripped and modified From THREE.js Mesh raycast
 // https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L115
@@ -36,17 +36,8 @@ function checkIntersection(ray: Ray, pA: Vector3, pB: Vector3, pC: Vector3, poin
 		distance: distance,
 		point: point.clone(),
 
-	};
+	} as Partial<Intersection<Object3D>> as Intersection<Object3D>;
 
-}
-
-export interface IntersectionType
-{
-	faceIndex?: number;
-	face?: { a: number; b: number; c: number; normal: Vector3; materialIndex: number; };
-	uv?: Vector2;
-	distance: number;
-	point: Vector3;
 }
 
 function checkBufferGeometryIntersection(ray: Ray, position: BufferAttribute | InterleavedBufferAttribute, uv: BufferAttribute, a: number, b: number, c: number, side: Side)
@@ -56,7 +47,7 @@ function checkBufferGeometryIntersection(ray: Ray, position: BufferAttribute | I
 	vB.fromBufferAttribute(position, b);
 	vC.fromBufferAttribute(position, c);
 
-	const intersection: IntersectionType | null = checkIntersection(ray, vA, vB, vC, intersectionPoint, side);
+	const intersection: Intersection<Object3D> | null = checkIntersection(ray, vA, vB, vC, intersectionPoint, side);
 
 	if (intersection)
 	{
@@ -92,7 +83,7 @@ function checkBufferGeometryIntersection(ray: Ray, position: BufferAttribute | I
 }
 
 // https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L258
-function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, intersections?: IntersectionType[])
+function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, intersections?: Intersection<Object3D>[])
 {
 
 	const triOffset = tri * 3;
@@ -100,7 +91,7 @@ function intersectTri(geo: BufferGeometry, side: Side, ray: Ray, tri: number, in
 	const b = geo.index!.getX(triOffset + 1);
 	const c = geo.index!.getX(triOffset + 2);
 
-	const intersection = checkBufferGeometryIntersection(ray, geo.attributes.position, geo.attributes.uv as any, a, b, c, side);
+	const intersection: Intersection<Object3D> = checkBufferGeometryIntersection(ray, geo.attributes.position, geo.attributes.uv as any, a, b, c, side);
 
 	if (intersection)
 	{

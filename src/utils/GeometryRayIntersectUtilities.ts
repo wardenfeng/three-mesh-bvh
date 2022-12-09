@@ -1,7 +1,7 @@
 import { BufferGeometry, Side, Ray, Event, Intersection, Material, Mesh, Object3D } from 'three';
-import { IntersectionType, intersectTri } from './ThreeRayIntersectUtilities';
+import { intersectTri } from './ThreeRayIntersectUtilities';
 
-export function intersectTris(geo: BufferGeometry, side: Side, ray: Ray, offset: number, count: number, intersections: IntersectionType[])
+export function intersectTris(geo: BufferGeometry, side: Side, ray: Ray, offset: number, count: number, intersections: Intersection<Object3D>[])
 {
 
 	for (let i = offset, end = offset + count; i < end; i++)
@@ -17,7 +17,7 @@ export function intersectClosestTri(geo: BufferGeometry, side: Side, ray: Ray, o
 {
 
 	let dist = Infinity;
-	let res: IntersectionType = null;
+	let res: Intersection<Object3D> = null;
 	for (let i = offset, end = offset + count; i < end; i++)
 	{
 

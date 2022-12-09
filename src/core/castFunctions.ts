@@ -1,4 +1,4 @@
-import { Box3, Vector3, Matrix4, BufferGeometry, Ray, Side } from 'three';
+import { Box3, Vector3, Matrix4, BufferGeometry, Ray, Side, Object3D, Intersection } from 'three';
 import { CONTAINED } from './Constants';
 
 import { OrientedBox } from '../math/OrientedBox';
@@ -8,13 +8,12 @@ import { setTriangle } from '../utils/TriangleUtilities';
 import { arrayToBox } from '../utils/ArrayBoxUtilities';
 import { PrimitivePool } from '../utils/PrimitivePool';
 import { COUNT, OFFSET, LEFT_NODE, RIGHT_NODE, IS_LEAF, BOUNDING_DATA_INDEX, SPLIT_AXIS } from './nodeBufferFunctions';
-import { IntersectionType } from 'src/utils/ThreeRayIntersectUtilities';
 
 const boundingBox = new Box3();
 const boxIntersection = new Vector3();
 const xyzFields: ('x' | 'y' | 'z')[] = ['x', 'y', 'z'];
 
-export function raycast(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray, intersects: IntersectionType[])
+export function raycast(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray, intersects: Intersection<Object3D>[])
 {
 
 	let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array!, uint16Array = _uint16Array!, uint32Array = _uint32Array!;
@@ -51,10 +50,7 @@ export function raycast(nodeIndex32: number, geometry: BufferGeometry, side: Sid
 
 }
 
-export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray):
-	{
-		face?: { a: number; b: number; c: number; normal: Vector3; materialIndex: number; }; point: Vector3, distance: number
-	}
+export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side: Side, ray: Ray)
 {
 
 	let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array!, uint16Array = _uint16Array!, uint32Array = _uint32Array!;
@@ -94,7 +90,7 @@ export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side
 		}
 
 		const c1Intersection = intersectRay(c1, float32Array, ray, boxIntersection);
-		const c1Result = c1Intersection ? raycastFirst(c1, geometry, side, ray) : null;
+		const c1Result: Intersection<Object3D> = c1Intersection ? raycastFirst(c1, geometry, side, ray) : null;
 
 		// if we got an intersection in the first node and it's closer than the second node's bounding
 		// box, we don't need to consider the second node because it couldn't possibly be a better result
@@ -120,7 +116,7 @@ export function raycastFirst(nodeIndex32: number, geometry: BufferGeometry, side
 		// either there was no intersection in the first node, or there could still be a closer
 		// intersection in the second, so check the second node and then take the better of the two
 		const c2Intersection = intersectRay(c2, float32Array, ray, boxIntersection);
-		const c2Result = c2Intersection ? raycastFirst(c2, geometry, side, ray) : null;
+		const c2Result: Intersection<Object3D> = c2Intersection ? raycastFirst(c2, geometry, side, ray) : null;
 
 		if (c1Result && c2Result)
 		{
