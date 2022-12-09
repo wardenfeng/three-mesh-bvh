@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
-import { computeBoundsTree, MeshBVHVisualizer, getBVHExtremes, StaticGeometryGenerator, SAH } from '..';
+import { computeBoundsTree, MeshBVHVisualizer, getBVHExtremes, StaticGeometryGenerator, SAH } from '../src';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { Mesh } from 'three';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 
@@ -29,10 +30,10 @@ const params = {
 
 let renderer, camera, scene, clock, gui, stats;
 let outputContainer;
-let controls, mixer, animationAction, model;
+let controls, mixer, animationAction, model:THREE.Group;
 let bvhHelper, skeletonHelper, meshHelper, staticGeometryGenerator;
 let timeSinceUpdate = 0;
-let initialExtremes = null;
+let initialExtremes:any = null;
 let wireframeMaterial, normalMaterials, originalMaterials;
 
 init();
@@ -91,15 +92,15 @@ function init() {
 
 		// prep the model and add it to the scene
 		model = gltf.scene;
-		const meshes = [];
+		const meshes:Mesh[] = [];
 		model.traverse( object => {
 
-			if ( object.isMesh ) {
+			if ( (object as Mesh) .isMesh ) {
 
 				object.castShadow = true;
 				object.receiveShadow = true;
 				object.frustumCulled = false;
-				meshes.push( object );
+				meshes.push( object as Mesh );
 
 			}
 
@@ -131,7 +132,7 @@ function init() {
 		controls.update();
 
 		// prep the geometry
-		staticGeometryGenerator = new StaticGeometryGenerator( model );
+		staticGeometryGenerator = new StaticGeometryGenerator( model as any );
 		originalMaterials = staticGeometryGenerator.getMaterials();
 
 		normalMaterials = originalMaterials.map( m => {
@@ -161,7 +162,7 @@ function init() {
 	} );
 
 
-	const plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(), new THREE.ShadowMaterial( { color: 0xffffff, opacity: 0.025, transparent: true } ) );
+	const plane = new THREE.Mesh( new THREE.PlaneGeometry(), new THREE.ShadowMaterial( { color: 0xffffff, opacity: 0.025, transparent: true } ) );
 	plane.rotation.x = - Math.PI / 2;
 	plane.receiveShadow = true;
 	plane.scale.setScalar( 50 );

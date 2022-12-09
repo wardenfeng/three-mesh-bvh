@@ -23,8 +23,8 @@ t2.needsUpdate = true;
 
 let stats;
 let scene, camera, renderer, orbitControls;
-let trispheres = [];
-let interSpheres = [];
+let trispheres:THREE.Mesh[] = [];
+let interSpheres:THREE.Mesh[] = [];
 let intersectionMesh;
 let line = new THREE.Line3();
 let t1Mesh, t2Mesh;

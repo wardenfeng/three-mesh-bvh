@@ -8,7 +8,7 @@ import {
 	CONTAINED,
 	INTERSECTED,
 	NOT_INTERSECTED,
-} from '..';
+} from '../src';
 
 const params = {
 
@@ -27,7 +27,7 @@ const params = {
 
 let renderer, camera, scene, gui, stats, controls, selectionShape, mesh, helper;
 let highlightMesh, highlightWireframeMesh, outputContainer, group;
-const selectionPoints = [];
+const selectionPoints:number[] = [];
 let dragging = false;
 let selectionShapeNeedsUpdate = false;
 let selectionNeedsUpdate = false;
@@ -126,13 +126,13 @@ function init() {
 
 	// add floor
 	const gridHelper = new THREE.GridHelper( 10, 10, 0xffffff, 0xffffff );
-	gridHelper.material.opacity = 0.2;
-	gridHelper.material.transparent = true;
+	(gridHelper.material as THREE.MeshBasicMaterial).opacity = 0.2;
+	(gridHelper.material as THREE.MeshBasicMaterial).transparent = true;
 	gridHelper.position.y = - 2.75;
 	scene.add( gridHelper );
 
 	const shadowPlane = new THREE.Mesh(
-		new THREE.PlaneBufferGeometry(),
+		new THREE.PlaneGeometry(),
 		new THREE.ShadowMaterial( { color: 0, opacity: 0.2, depthWrite: false } )
 	);
 	shadowPlane.position.y = - 2.74;
@@ -414,10 +414,10 @@ const centroid = new THREE.Vector3();
 const screenCentroid = new THREE.Vector3();
 const faceNormal = new THREE.Vector3();
 const toScreenSpaceMatrix = new THREE.Matrix4();
-const boxPoints = new Array( 8 ).fill().map( () => new THREE.Vector3() );
-const boxLines = new Array( 12 ).fill().map( () => new THREE.Line3() );
-const lassoSegments = [];
-const perBoundsSegments = [];
+const boxPoints = new Array( 8 ).fill(undefined).map( () => new THREE.Vector3() );
+const boxLines = new Array( 12 ).fill(undefined).map( () => new THREE.Line3() );
+const lassoSegments:THREE.Line3[] = [];
+const perBoundsSegments:THREE.Line3[][] = [];
 function updateSelection() {
 
 	// TODO: Possible improvements
@@ -454,7 +454,7 @@ function updateSelection() {
 	camLocalPosition.set( 0, 0, 0 ).applyMatrix4( camera.matrixWorld ).applyMatrix4( invWorldMatrix );
 
 	const startTime = window.performance.now();
-	const indices = [];
+	const indices:number[] = [];
 	mesh.geometry.boundsTree.shapecast( {
 		intersectsBounds: ( box, isLeaf, score, depth ) => {
 
@@ -482,7 +482,7 @@ function updateSelection() {
 						v.x = x === 0 ? min.x : max.x;
 						v.y = y === 0 ? min.y : max.y;
 						v.z = z === 0 ? min.z : max.z;
-						v.w = 1;
+						(v as any) .w = 1;
 						v.applyMatrix4( toScreenSpaceMatrix );
 						index ++;
 
@@ -530,7 +530,7 @@ function updateSelection() {
 			}
 
 			// Get the screen space hull lines
-			const hull = getConvexHull( boxPoints );
+			const hull = getConvexHull( boxPoints )!;
 			const lines = hull.map( ( p, i ) => {
 
 				const nextP = hull[ ( i + 1 ) % hull.length ];
