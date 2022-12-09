@@ -6,7 +6,7 @@ import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import {
 	acceleratedRaycast, computeBoundsTree, disposeBoundsTree, MeshBVHVisualizer, INTERSECTED, NOT_INTERSECTED,
 	SAH, CENTER, AVERAGE,
-} from '..';
+} from '../src';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -29,6 +29,8 @@ const params = {
 	pointSize: 0.005,
 	raycastThreshold: 0.005,
 	useBVH: true,
+	mode:undefined,
+	depth:undefined,
 
 };
 
@@ -57,7 +59,7 @@ function init() {
 	new OrbitControls( camera, renderer.domElement );
 
 	// stats setup
-	stats = new Stats();
+	stats = Stats();
 	document.body.appendChild( stats.dom );
 
 
@@ -82,7 +84,7 @@ function init() {
 		scene.add( pointCloud );
 
 		// BVH Mesh creation
-		const indices = [];
+		const indices:number[] = [];
 		const bvhGeometry = geometry.clone();
 		let verticesLength = bvhGeometry.attributes.position.count;
 		for ( let i = 0, l = verticesLength; i < l; i ++ ) {
@@ -113,13 +115,13 @@ function init() {
 	const gui = new GUI();
 	const helperFolder = gui.addFolder( 'helper' );
 	helperFolder.add( params, 'displayHelper' );
-	helperFolder.add( params, 'displayParents' ).onChange( v => {
+	helperFolder.add( params, 'displayParents' )!.onChange( v => {
 
 		helper.displayParents = v;
 		helper.update();
 
 	} );
-	helperFolder.add( params, 'helperDepth', 1, 20, 1 ).name( 'depth' ).onChange( v => {
+	helperFolder.add( params, 'helperDepth', 1, 20, 1 )!.name( 'depth' ).onChange( v => {
 
 		helper.depth = parseInt( v );
 		helper.update();
@@ -129,7 +131,7 @@ function init() {
 
 	const pointsFolder = gui.addFolder( 'points' );
 	pointsFolder.add( params, 'useBVH' );
-	pointsFolder.add( params, 'strategy', { CENTER, AVERAGE, SAH } ).onChange( v => {
+	pointsFolder.add( params, 'strategy', { CENTER, AVERAGE, SAH } )!.onChange( v => {
 
 		console.time( 'computeBoundsTree' );
 		bvhMesh.geometry.computeBoundsTree( { strategy: parseInt( v ) } );
@@ -164,7 +166,7 @@ window.addEventListener( 'pointermove', ( event ) => {
 		inverseMatrix.copy( bvhMesh.matrixWorld ).invert();
 		raycaster.ray.applyMatrix4( inverseMatrix );
 
-		const threshold = raycaster.params.Points.threshold;
+		const threshold = raycaster.params.Points!.threshold;
 		const localThreshold = threshold / ( ( bvhMesh.scale.x + bvhMesh.scale.y + bvhMesh.scale.z ) / 3 );
 		const localThresholdSq = localThreshold * localThreshold;
 
@@ -242,7 +244,7 @@ function render() {
 
 		pointCloud.material.size = params.pointSize;
 		helper.visible = params.displayHelper;
-		raycaster.params.Points.threshold = params.raycastThreshold;
+		raycaster.params.Points!.threshold = params.raycastThreshold;
 
 	}
 

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {
 	acceleratedRaycast, computeBoundsTree, disposeBoundsTree,
 	CENTER, SAH, AVERAGE, MeshBVHVisualizer,
-} from '..';
+} from '../src';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -14,8 +14,11 @@ const bgColor = 0x263238 / 2;
 
 let renderer, scene, stats, camera;
 let geometry, material, boundsViz, containerObj;
-const knots = [];
-const rayCasterObjects = [];
+const knots:THREE.Mesh[] = [];
+const rayCasterObjects:{
+	update: () => void
+	remove: () => void
+}[] = [];
 
 // Create ray casters in the scene
 const raycaster = new THREE.Raycaster();
@@ -24,7 +27,7 @@ const cylinder = new THREE.CylinderGeometry( 0.01, 0.01 );
 const pointDist = 25;
 
 // Delta timer
-let lastFrameTime = null;
+let lastFrameTime:number = null as any;
 let deltaTime = 0;
 
 const params = {
@@ -198,7 +201,7 @@ function updateFromOptions() {
 	// Update raycaster count
 	while ( rayCasterObjects.length > params.raycasters.count ) {
 
-		rayCasterObjects.pop().remove();
+		rayCasterObjects.pop()!.remove();
 
 	}
 
@@ -229,7 +232,7 @@ function updateFromOptions() {
 		console.time( 'computing bounds tree' );
 		geometry.computeBoundsTree( {
 			maxLeafTris: 5,
-			strategy: parseFloat( params.mesh.splitStrategy ),
+			strategy:  params.mesh.splitStrategy ,
 		} );
 		geometry.boundsTree.splitStrategy = params.mesh.splitStrategy;
 		console.timeEnd( 'computing bounds tree' );

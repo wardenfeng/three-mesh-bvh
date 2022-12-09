@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { Mesh } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, AVERAGE, MeshBVHVisualizer } from '..';
+import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, AVERAGE, MeshBVHVisualizer } from '../src';
 
 // Code for debugging issue #180 and other random raycast test associated issues.
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -8,9 +9,9 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
 let renderer, camera, scene;
-let meshes = [];
+let meshes:THREE.Mesh[] = [];
 
-let _seed = null;
+let _seed:number = null as any;
 function random() {
 
 	if ( _seed === null ) throw new Error();
@@ -83,7 +84,7 @@ function init() {
 			meshes.push( mesh );
 			scene.add( mesh );
 
-			const wireframe = mesh.clone();
+			const wireframe = mesh.clone() as Mesh;
 			wireframe.material = new THREE.MeshBasicMaterial( { wireframe: true, color: 0xff6666 } );
 			scene.add( wireframe );
 
@@ -94,7 +95,7 @@ function init() {
 
 		}
 
-		mesh.updateMatrix( true );
+		mesh.updateMatrix( );
 		mesh.updateMatrixWorld( true );
 
 	}
@@ -121,7 +122,7 @@ function init() {
 	raycaster.firstHitOnly = true;
 	const firstHit = raycaster.intersectObjects( meshes, true );
 
-	geometry.boundsTree = null;
+	geometry.boundsTree = null as any;
 	const ogHits = raycaster.intersectObjects( meshes, true );
 
 	console.log( 'FIRST HIT', firstHit );
