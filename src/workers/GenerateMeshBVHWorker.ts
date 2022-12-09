@@ -31,7 +31,8 @@ export class GenerateMeshBVHWorker
 	}
 
 	generate(geometry: BufferGeometry, options: {
-		onProgress?: (progress: number) => void
+		onProgress?: (progress: number) => void;
+		maxLeafTris?: number; strategy?: number
 	} = {})
 	{
 
