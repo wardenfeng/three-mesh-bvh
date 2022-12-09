@@ -140,6 +140,7 @@ export class MeshBVH
 	constructor(geometry: BufferGeometry,
 		options: {
 			setBoundingBox?: boolean; useSharedArrayBuffer?: boolean,
+			strategy?: number, maxLeafTris?: number
 		} = {})
 	{
 
