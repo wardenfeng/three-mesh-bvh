@@ -6,7 +6,7 @@ import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import {
 	MeshBVH, MeshBVHUniformStruct, FloatVertexAttributeTexture,
 	shaderStructs, shaderIntersectFunction, SAH,
-} from '..';
+} from '../src';
 
 const params = {
 	enableRaytracing: true,

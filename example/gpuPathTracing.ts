@@ -8,7 +8,8 @@ import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import {
 	MeshBVH, MeshBVHUniformStruct, FloatVertexAttributeTexture,
 	shaderStructs, shaderIntersectFunction, SAH,
-} from '..';
+} from '../src';
+import { Mesh } from 'three';
 
 const params = {
 	enableRaytracing: true,
@@ -193,18 +194,18 @@ function init() {
 	new GLTFLoader().load( '../models/DragonAttenuation.glb', gltf => {
 
 		let dragonMesh;
-		gltf.scene.traverse( c => {
+		gltf.scene.traverse( (c) => {
 
-			if ( c.isMesh && c.name === 'Dragon' ) {
+			if ( (c as Mesh) .isMesh && c.name === 'Dragon' ) {
 
 				dragonMesh = c;
-				c.geometry.scale( 0.25, 0.25, 0.25 ).rotateX( Math.PI / 2 );
+				(c as Mesh).geometry.scale( 0.25, 0.25, 0.25 ).rotateX( Math.PI / 2 );
 
 			}
 
 		} );
 
-		const planeGeom = new THREE.PlaneBufferGeometry( 5, 5, 1, 1 );
+		const planeGeom = new THREE.PlaneGeometry( 5, 5, 1, 1 );
 		planeGeom.rotateX( - Math.PI / 2 );
 
 		const merged = mergeBufferGeometries( [ planeGeom, dragonMesh.geometry ], false );

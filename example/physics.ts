@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
-import { MeshBVH, MeshBVHVisualizer } from '..';
+import { MeshBVH, MeshBVHVisualizer } from '../src';
 
 const params = {
 
@@ -80,7 +80,7 @@ function init() {
 	camera.position.set( 10, 10, - 10 );
 	camera.far = 100;
 	camera.updateProjectionMatrix();
-	window.camera = camera;
+	// window.camera = camera;
 
 	clock = new THREE.Clock();
 

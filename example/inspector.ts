@@ -7,7 +7,8 @@ import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import {
 	acceleratedRaycast, computeBoundsTree, disposeBoundsTree, MeshBVHVisualizer,
 	SAH, CENTER, AVERAGE, getBVHExtremes, estimateMemoryInBytes,
-} from '..';
+} from '../src';
+import { Mesh } from 'three';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -214,7 +215,7 @@ function init() {
 
 		gltf.scene.traverse( c => {
 
-			if ( c.isMesh && c.name === 'Dragon' ) {
+			if ( (c as Mesh) .isMesh && c.name === 'Dragon' ) {
 
 				mesh = c;
 
@@ -312,7 +313,7 @@ function updateBVH() {
 
 	const startTime = performance.now();
 	mesh.geometry.computeBoundsTree( {
-		strategy: parseInt( params.options.strategy ),
+		strategy: Math.floor( params.options.strategy ),
 		maxLeafTris: params.options.maxLeafTris,
 		maxDepth: params.options.maxDepth,
 	} );
@@ -336,8 +337,8 @@ function updateBVH() {
 
 function runBenchmark( updateGeom = false ) {
 
-	let points = null;
-	let newGeometry = null;
+	let points:THREE.Vector3[] = null as any;
+	let newGeometry:THREE.BufferGeometry = null as any;
 	if ( updateGeom ) {
 
 		mesh.updateMatrixWorld();
