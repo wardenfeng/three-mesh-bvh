@@ -5,7 +5,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
-import { MeshBVH, MeshBVHVisualizer, CONTAINED } from '..';
+import { MeshBVH, MeshBVHVisualizer, CONTAINED } from '../src';
+import { Mesh } from 'three';
 
 const params = {
 	useBVH: true,
@@ -27,7 +28,7 @@ let colliderBvh, colliderMesh, bvhHelper;
 let frontSideModel, backSideModel, planeMesh;
 let clippingPlanes, outlineLines;
 let initialClip = false;
-let outputElement = null;
+let outputElement: HTMLElement;
 let time = 0;
 
 const tempVector = new THREE.Vector3();
@@ -43,7 +44,7 @@ render();
 
 function init() {
 
-	outputElement = document.getElementById( 'output' );
+	outputElement = document.getElementById( 'output' ) as HTMLElement ;
 
 	const bgColor = new THREE.Color( 0x263238 ).multiplyScalar( 0.1 );
 
@@ -83,7 +84,7 @@ function init() {
 		new THREE.Plane(),
 	];
 
-	planeMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry(), new THREE.MeshBasicMaterial( {
+	planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(), new THREE.MeshBasicMaterial( {
 		side: THREE.DoubleSide,
 		stencilWrite: true,
 		stencilFunc: THREE.NotEqualStencilFunc,
@@ -152,7 +153,7 @@ function init() {
 
 		// use basic material because the using clip caps is expensive since the fragment
 		// shader has to run always.
-		const model = gltf.scene.children[ 0 ];
+		const model = gltf.scene.children[ 0 ] as Mesh;
 		const mergedGeometry = model.geometry;
 		model.material = new THREE.MeshBasicMaterial();
 		model.position.set( 0, 0, 0 );
@@ -257,8 +258,8 @@ function init() {
 		colliderMesh.rotation.copy( model.rotation );
 		colliderMesh.scale.copy( model.scale );
 
-		bvhHelper = new MeshBVHVisualizer( colliderMesh, parseInt( params.helperDepth ) );
-		bvhHelper.depth = parseInt( params.helperDepth );
+		bvhHelper = new MeshBVHVisualizer( colliderMesh, Math.floor( params.helperDepth ) );
+		bvhHelper.depth = Math.floor( params.helperDepth );
 		bvhHelper.update();
 
 		// create group of meshes and offset it so they're centered

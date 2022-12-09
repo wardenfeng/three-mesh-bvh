@@ -5,7 +5,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
-import { MeshBVH, MeshBVHVisualizer } from '..';
+import { MeshBVH, MeshBVHVisualizer } from '../src';
+import { Mesh } from 'three';
 
 const params = {
 
@@ -76,7 +77,7 @@ function init() {
 	camera.position.set( 10, 10, - 10 );
 	camera.far = 100;
 	camera.updateProjectionMatrix();
-	window.camera = camera;
+	// window.camera = camera;
 
 	clock = new THREE.Clock();
 
@@ -204,7 +205,7 @@ function loadColliderEnvironment() {
 
 		// visual geometry setup
 		const toMerge = {};
-		gltfScene.traverse( c => {
+		gltfScene.traverse( (c) => {
 
 			if (
 				/Boss/.test( c.name ) ||
@@ -218,16 +219,16 @@ function loadColliderEnvironment() {
 				/Cube/.test( c.name ) ||
 
 				// pink brick
-				c.material && c.material.color.r === 1.0
+				(c as Mesh).material && (c as any).material.color.r === 1.0
 			) {
 
 				return;
 
 			}
 
-			if ( c.isMesh ) {
+			if ( (c as Mesh).isMesh ) {
 
-				const hex = c.material.color.getHex();
+				const hex = (c as any).material.color.getHex();
 				toMerge[ hex ] = toMerge[ hex ] || [];
 				toMerge[ hex ].push( c );
 
@@ -238,11 +239,11 @@ function loadColliderEnvironment() {
 		environment = new THREE.Group();
 		for ( const hex in toMerge ) {
 
-			const arr = toMerge[ hex ];
-			const visualGeometries = [];
+			const arr:Mesh[] = toMerge[ hex ];
+			const visualGeometries:THREE.BufferGeometry[] = [];
 			arr.forEach( mesh => {
 
-				if ( mesh.material.emissive.r !== 0 ) {
+				if ( (mesh.material as THREE.MeshStandardMaterial).emissive.r !== 0 ) {
 
 					environment.attach( mesh );
 
@@ -271,13 +272,13 @@ function loadColliderEnvironment() {
 		}
 
 		// collect all geometries to merge
-		const geometries = [];
+		const geometries:THREE.BufferGeometry[] = [];
 		environment.updateMatrixWorld( true );
 		environment.traverse( c => {
 
 			if ( c.geometry ) {
 
-				const cloned = c.geometry.clone();
+				const cloned = (c as Mesh).geometry.clone();
 				cloned.applyMatrix4( c.matrixWorld );
 				for ( const key in cloned.attributes ) {
 

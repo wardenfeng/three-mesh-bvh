@@ -13,11 +13,13 @@ import {
 	disposeBoundsTree,
 	SAH,
 	CENTER,
-} from '..';
+	MeshBVH,
+} from '../src';
 import {
 	GenerateMeshBVHWorker,
 } from '../src/workers/GenerateMeshBVHWorker';
 import { ANTIALIAS_OFFSETS, ANTIALIAS_WIDTH, EPSILON, getBasisFromNormal, isDirectionValid } from './pathtracing/utils.js';
+import { Mesh } from 'three';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -143,7 +145,7 @@ function init() {
 	scene.add( light );
 
 	lightMesh = new THREE.Mesh(
-		new THREE.PlaneBufferGeometry( 1, 1, 1, 1 ),
+		new THREE.PlaneGeometry( 1, 1, 1, 1 ),
 		new THREE.MeshBasicMaterial( { side: THREE.DoubleSide } ),
 	);
 	lightMesh.position.set( 2, 2, 2 );
@@ -151,7 +153,7 @@ function init() {
 	scene.add( lightMesh );
 
 	floorMesh = new THREE.Mesh(
-		new THREE.PlaneBufferGeometry( 1, 1, 1, 1 ),
+		new THREE.PlaneGeometry( 1, 1, 1, 1 ),
 		new THREE.MeshStandardMaterial( { side: THREE.DoubleSide } ),
 	);
 	floorMesh.rotation.x = - Math.PI / 2;
@@ -187,7 +189,7 @@ function init() {
 	models[ 'Cornell Box' ] = null;
 	{
 
-		const planeGeom = new THREE.PlaneBufferGeometry( 1, 1, 1, 1 );
+		const planeGeom = new THREE.PlaneGeometry( 1, 1, 1, 1 );
 		const leftWall = new THREE.Mesh(
 			planeGeom,
 			new THREE.MeshStandardMaterial( {
@@ -270,7 +272,7 @@ function init() {
 		let mesh;
 		gltf.scene.traverse( c => {
 
-			if ( c.isMesh && c.name === 'Dragon' ) {
+			if ( (c as Mesh).isMesh && c.name === 'Dragon' ) {
 
 				mesh = c;
 
@@ -289,7 +291,7 @@ function init() {
 		const generator = new GenerateMeshBVHWorker();
 		generator
 			.generate( geometry, { maxLeafTris: 1, strategy: SAH } )
-			.then( bvh => {
+			.then( (bvh ) => {
 
 				models[ 'Dragon' ] = { mesh: merged, materials, floorHeight: mesh.geometry.boundingBox.min.y };
 				geometry.boundsTree = bvh;

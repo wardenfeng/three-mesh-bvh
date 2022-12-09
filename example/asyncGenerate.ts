@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import Stats from 'stats.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { GenerateMeshBVHWorker } from '../src/workers/GenerateMeshBVHWorker';
-import { acceleratedRaycast, MeshBVH, MeshBVHVisualizer } from '..';
+import { acceleratedRaycast, MeshBVH, MeshBVHVisualizer } from '../src';
 
-THREE.Mesh.raycast = acceleratedRaycast;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 const params = {
 
