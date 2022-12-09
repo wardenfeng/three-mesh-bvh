@@ -1,5 +1,5 @@
 import { ShaderMaterial, Matrix4 } from 'three';
-import { shaderIntersectFunction, shaderDistanceFunction, shaderStructs, MeshBVHUniformStruct } from '../..';
+import { shaderIntersectFunction, shaderDistanceFunction, shaderStructs, MeshBVHUniformStruct } from '../../src';
 
 export class GenerateSDFMaterial extends ShaderMaterial {
 

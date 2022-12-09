@@ -11,7 +11,7 @@ import {
 	INTERSECTED,
 	NOT_INTERSECTED,
 	MeshBVHVisualizer,
-} from '..';
+} from '../src';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -60,11 +60,11 @@ function reset() {
 	}
 
 	// merge the vertices because they're not already merged
-	let geometry = new THREE.IcosahedronBufferGeometry( 1, 100 );
+	let geometry = new THREE.IcosahedronGeometry( 1, 100 );
 	geometry.deleteAttribute( 'uv' );
-	geometry = BufferGeometryUtils.mergeVertices( geometry );
-	geometry.attributes.position.setUsage( THREE.DynamicDrawUsage );
-	geometry.attributes.normal.setUsage( THREE.DynamicDrawUsage );
+	geometry = BufferGeometryUtils.mergeVertices( geometry ) as any;
+	(geometry.attributes.position as any).setUsage( THREE.DynamicDrawUsage );
+	(geometry.attributes.normal as any).setUsage( THREE.DynamicDrawUsage );
 	geometry.computeBoundsTree( { setBoundingBox: false } );
 
 	// disable frustum culling because the verts will be updated
@@ -311,7 +311,11 @@ function init() {
 }
 
 // Run the perform the brush movement
-function performStroke( point, brushObject, brushOnly = false, accumulatedFields = {} ) {
+function performStroke( point, brushObject, brushOnly = false, accumulatedFields:{
+	accumulatedTriangles:Set<any>
+	accumulatedIndices:Set<any>
+	accumulatedTraversedNodeIndices:Set<any>
+} = {} as any ) {
 
 	const {
 		accumulatedTriangles = new Set(),
@@ -327,7 +331,7 @@ function performStroke( point, brushObject, brushOnly = false, accumulatedFields
 	sphere.radius = params.size;
 
 	// Collect the intersected vertices
-	const indices = new Set();
+	const indices = new Set<number>();
 	const tempVec = new THREE.Vector3();
 	const normal = new THREE.Vector3();
 	const indexAttr = targetMesh.geometry.index;
