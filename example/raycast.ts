@@ -97,18 +97,18 @@ function init() {
 	// Run
 	const gui = new dat.GUI();
 	const rcFolder = gui.addFolder( 'Raycasters' );
-	rcFolder.add( params.raycasters, 'count' ).min( 1 ).max( 1000 ).step( 1 ).onChange( () => updateFromOptions() );
-	rcFolder.add( params.raycasters, 'speed' ).min( 0 ).max( 20 );
+	rcFolder.add( params.raycasters, 'count' )!.min( 1 ).max( 1000 ).step( 1 ).onChange( () => updateFromOptions() );
+	rcFolder.add( params.raycasters, 'speed' )!.min( 0 ).max( 20 );
 	rcFolder.open();
 
 	const meshFolder = gui.addFolder( 'Mesh' );
-	meshFolder.add( params.mesh, 'useBoundsTree' ).onChange( () => updateFromOptions() );
-	meshFolder.add( params.mesh, 'splitStrategy', { 'CENTER': CENTER, 'SAH': SAH, 'AVERAGE': AVERAGE } ).onChange( () => updateFromOptions() );
-	meshFolder.add( params.mesh, 'count' ).min( 1 ).max( 300 ).step( 1 ).onChange( () => updateFromOptions() );
-	meshFolder.add( params.mesh, 'speed' ).min( 0 ).max( 20 );
-	meshFolder.add( params.mesh, 'visualizeBounds' ).onChange( () => updateFromOptions() );
-	meshFolder.add( params.mesh, 'displayParents' ).onChange( () => updateFromOptions() );
-	meshFolder.add( params.mesh, 'visualBoundsDepth' ).min( 1 ).max( 20 ).step( 1 ).onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'useBoundsTree' )!.onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'splitStrategy', { 'CENTER': CENTER, 'SAH': SAH, 'AVERAGE': AVERAGE } )!.onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'count' )!.min( 1 ).max( 300 ).step( 1 ).onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'speed' )!.min( 0 ).max( 20 );
+	meshFolder.add( params.mesh, 'visualizeBounds' )!.onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'displayParents' )!.onChange( () => updateFromOptions() );
+	meshFolder.add( params.mesh, 'visualBoundsDepth' )!.min( 1 ).max( 20 ).step( 1 ).onChange( () => updateFromOptions() );
 	meshFolder.open();
 
 	window.addEventListener( 'resize', function () {

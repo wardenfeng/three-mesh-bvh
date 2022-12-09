@@ -10,6 +10,7 @@ import { GenerateSDFMaterial } from './utils/GenerateSDFMaterial.js';
 import { RenderSDFLayerMaterial } from './utils/RenderSDFLayerMaterial.js';
 import { RayMarchSDFMaterial } from './utils/RayMarchSDFMaterial.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { Vector3 } from 'three';
 
 const params = {
 
@@ -89,7 +90,7 @@ function init()
 
 			gltf.scene.updateMatrixWorld(true);
 
-			const staticGen = new StaticGeometryGenerator(gltf.scene);
+			const staticGen = new StaticGeometryGenerator(gltf.scene as any);
 			staticGen.attributes = ['position', 'normal'];
 			staticGen.useGroups = false;
 
@@ -256,7 +257,7 @@ function updateSDF()
 		const normal = new THREE.Vector3();
 		const delta = new THREE.Vector3();
 		const tri = new THREE.Triangle();
-		const target = {};
+		const target:{faceIndex:number,point:Vector3} = {} as any;
 
 		// iterate over all pixels and check distance
 		for (let x = 0; x < dim; x++)

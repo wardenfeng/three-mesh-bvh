@@ -147,7 +147,7 @@ function init() {
 	camera.updateProjectionMatrix();
 
 	// stats setup
-	stats = new Stats();
+	stats = Stats();
 	document.body.appendChild( stats.dom );
 
 	// init matcaps
@@ -173,12 +173,12 @@ function init() {
 
 	const sculptFolder = gui.addFolder( 'Sculpting' );
 	sculptFolder.add( params, 'brush', [ 'normal', 'clay', 'flatten' ] );
-	sculptFolder.add( params, 'size' ).min( 0.025 ).max( 0.25 ).step( 0.005 );
-	sculptFolder.add( params, 'intensity' ).min( 1 ).max( 100 ).step( 1 );
-	sculptFolder.add( params, 'maxSteps' ).min( 1 ).max( 25 ).step( 1 );
+	sculptFolder.add( params, 'size' )!.min( 0.025 ).max( 0.25 ).step( 0.005 );
+	sculptFolder.add( params, 'intensity' )!.min( 1 ).max( 100 ).step( 1 );
+	sculptFolder.add( params, 'maxSteps' )!.min( 1 ).max( 25 ).step( 1 );
 	sculptFolder.add( params, 'symmetrical' );
 	sculptFolder.add( params, 'invert' );
-	sculptFolder.add( params, 'flatShading' ).onChange( value => {
+	sculptFolder.add( params, 'flatShading' )!.onChange( value => {
 
 		targetMesh.material.flatShading = value;
 		targetMesh.material.needsUpdate = true;
@@ -187,13 +187,13 @@ function init() {
 	sculptFolder.open();
 
 	const helperFolder = gui.addFolder( 'BVH Helper' );
-	helperFolder.add( params, 'depth' ).min( 1 ).max( 20 ).step( 1 ).onChange( d => {
+	helperFolder.add( params, 'depth' )!.min( 1 ).max( 20 ).step( 1 ).onChange( d => {
 
 		bvhHelper.depth = parseFloat( d );
 		bvhHelper.update();
 
 	} );
-	helperFolder.add( params, 'displayHelper' ).onChange( display => {
+	helperFolder.add( params, 'displayHelper' )!.onChange( display => {
 
 		if ( display ) {
 
